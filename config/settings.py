@@ -47,10 +47,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'web_sem',
+    'personne',
     'source_production',
     'stockage',
     'consommateur',
     'contrat',
+    'zone',
 ]
 
 MIDDLEWARE = [
@@ -145,6 +147,8 @@ MAILERS = {
 # Apache Jena Fuseki
 # Query URL prefers FUSEKI_QUERY_URL, then SPARQL_ENDPOINT, then FUSEKI_URL/FUSEKI_DATASET.
 
+USE_MOCK_RDF = os.getenv('USE_MOCK_RDF', 'true').lower() == 'true'
+
 FUSEKI_URL = os.getenv('FUSEKI_URL', 'http://127.0.0.1:3030').strip().rstrip('/')
 FUSEKI_DATASET = os.getenv('FUSEKI_DATASET', 'energy').strip().strip('/')
 FUSEKI_ADMIN_USER = os.getenv('FUSEKI_ADMIN_USER', '').strip()
@@ -175,6 +179,11 @@ UNFOLD = {
                 'separator': True,
                 'items': [
                     {
+                        'title': 'Personne',
+                        'icon': 'person',
+                        'link': reverse_lazy('personne:list'),
+                    },
+                    {
                         'title': 'SourceProduction',
                         'icon': 'bolt',
                         'link': reverse_lazy('source_production:list'),
@@ -183,6 +192,11 @@ UNFOLD = {
                         'title': 'Stockage',
                         'icon': 'battery_full',
                         'link': reverse_lazy('stockage:list'),
+                    },
+                    {
+                        'title': 'Zone',
+                        'icon': 'map',
+                        'link': reverse_lazy('zone:list'),
                     },
                     {
                         'title': 'Questions',

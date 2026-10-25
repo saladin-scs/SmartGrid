@@ -7,6 +7,7 @@ ENERGIE.rdf or from a validated individual name.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from django.conf import settings
 
 from web_sem.ontology import (
     ONTOLOGY_NS,
@@ -26,8 +27,15 @@ class Individual:
 
 
 class IndividualRepository:
+    def __new__(cls, *args, **kwargs):
+        if getattr(settings, "USE_MOCK_RDF", False):
+            from .mock_repository import MockIndividualRepository
+            return MockIndividualRepository()
+        return super().__new__(cls)
+
     def __init__(self, service: SparqlService | None = None) -> None:
-        self.service = service or SparqlService()
+        if not hasattr(self, "service"):  # Don't re-init if it's the mock
+            self.service = service or SparqlService()
 
     def list_individuals(
         self,

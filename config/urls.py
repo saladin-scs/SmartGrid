@@ -23,9 +23,11 @@ from web_sem.views import home
 urlpatterns = [
     path('', home, name='home'),
     path('questions/', questions, name='questions'),
+    path('personnes/', include('personne.urls')),
     path('sources/', include('source_production.urls')),
     path('stockages/', include('stockage.urls')),
     path('consommateurs/', include('consommateur.urls')),
     path('contrats/', include('contrat.urls')),
+    path('zones/', include('zone.urls')),
     path('admin/', admin.site.urls),
 ]
