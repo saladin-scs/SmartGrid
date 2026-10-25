@@ -35,6 +35,13 @@ SAMPLE_QUESTIONS = (
     "Combien de centrales nucléaires existe-t-il ?",
     "Donne-moi les détails de CentraleTunis.",
     "Quels types de stockage sont disponibles ?",
+    "Liste les consommateurs.",
+    "Combien de consommateurs existe-t-il ?",
+    "Affiche les détails de MaisonDemo.",
+    "Liste les contrats.",
+    "Combien de contrats existe-t-il ?",
+    "Liste les contrats de type AbonnementResidentiel.",
+    "Quels types de contrats sont disponibles ?",
     "How many nuclear plants are there?",
 )
 
