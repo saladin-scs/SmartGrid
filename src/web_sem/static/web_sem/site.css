@@ -190,6 +190,38 @@ th { font-size: 0.8rem; letter-spacing: 0.03em; text-transform: uppercase; color
 
 .empty { margin: 1rem 0; }
 
+.question-form { display: grid; gap: 0.75rem; margin-bottom: 1rem; }
+
+.question-form .field { min-width: 0; }
+
+.question-form .button { justify-self: start; }
+
+.section-title { margin: 1.25rem 0 0.6rem; }
+
+.samples { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+.samples .button { text-align: left; }
+
+.answer-panel { margin-top: 1rem; }
+
+.count { margin: 0.4rem 0; font-size: 2.4rem; font-weight: 700; }
+
+.sparql-block { margin-top: 1rem; }
+
+.sparql {
+  margin: 0.5rem 0 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  background: #10231d;
+  color: #e7f6ef;
+  border-radius: 8px;
+}
+
+.sparql code { color: inherit; }
+
+.message-warning { background: var(--warn); }
+
 @media (max-width: 720px) {
   thead { display: none; }
 

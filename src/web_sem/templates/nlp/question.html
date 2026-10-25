@@ -1,0 +1,87 @@
+<c-layout active="questions" title="Questions">
+  <c-page-header title="Questions" eyebrow="Natural language" summary="Ask about production sources and storage. The answer is a read-only SPARQL query on the energy dataset."></c-page-header>
+
+  <form id="question-form" class="panel question-form" method="get" action="{% url 'questions' %}">
+    {% for field in form %}
+      <c-field :field="field"></c-field>
+    {% endfor %}
+    <button id="ask-button" class="button" type="submit">Ask</button>
+  </form>
+
+  <h2 class="section-title">Sample questions</h2>
+  <div class="samples">
+    {% for sample in samples %}
+      <a class="button button-quiet" href="?q={{ sample|urlencode }}">{{ sample }}</a>
+    {% endfor %}
+  </div>
+
+  {% if answer %}
+    <section class="panel answer-panel" aria-label="Answer">
+      {% if answer.clarification %}
+        <c-alert level="warning">{{ answer.clarification }}</c-alert>
+      {% endif %}
+      {% if answer.error %}
+        <c-alert>{{ answer.error }}</c-alert>
+      {% endif %}
+      {% if answer.intent %}
+        <p class="eyebrow">{{ answer.intent }}</p>
+      {% endif %}
+      {% if answer.explanation %}
+        <p>{{ answer.explanation }}</p>
+      {% endif %}
+      {% if answer.count is not None %}
+        <p class="count">{{ answer.count }}</p>
+      {% endif %}
+      {% if answer.rows %}
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Result</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in answer.rows %}
+                <tr>
+                  <td data-label="Result">
+                    {% if row.href %}
+                      <a href="{{ row.href }}">{{ row.title }}</a>
+                    {% else %}
+                      {{ row.title }}
+                    {% endif %}
+                  </td>
+                  <td data-label="Description">
+                    {{ row.subtitle }}
+                    {% if row.meta %}<br><span class="help">{{ row.meta }}</span>{% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% elif answer.empty_message %}
+        <p class="empty">{{ answer.empty_message }}</p>
+      {% endif %}
+      {% if answer.sparql %}
+        <details class="sparql-block">
+          <summary>Generated SPARQL</summary>
+          <pre class="sparql"><code>{{ answer.sparql }}</code></pre>
+        </details>
+      {% endif %}
+    </section>
+  {% endif %}
+  <script>
+    (function () {
+      var form = document.getElementById("question-form");
+      if (!form) return;
+      form.addEventListener("submit", function () {
+        var button = document.getElementById("ask-button");
+        if (!button) return;
+        button.disabled = true;
+        button.setAttribute("aria-busy", "true");
+        button.textContent = "Searching…";
+      });
+    })();
+  </script>
+</c-layout>

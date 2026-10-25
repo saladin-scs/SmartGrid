@@ -182,6 +182,11 @@ UNFOLD = {
                         'icon': 'battery_full',
                         'link': reverse_lazy('stockage:list'),
                     },
+                    {
+                        'title': 'Questions',
+                        'icon': 'search',
+                        'link': reverse_lazy('questions'),
+                    },
                 ],
             },
         ],
