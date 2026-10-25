@@ -21,6 +21,8 @@ _DISPLAY_BOUNDARY = re.compile(r"(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])")
 _MODULE_KEYS = {
     "SourceProduction": "source_production",
     "Stockage": "stockage",
+    "Consommateur": "consommateur",
+    "Contrat": "contrat",
 }
 
 

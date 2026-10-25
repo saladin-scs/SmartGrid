@@ -49,6 +49,8 @@ INSTALLED_APPS = [
     'web_sem',
     'source_production',
     'stockage',
+    'consommateur',
+    'contrat',
 ]
 
 MIDDLEWARE = [
@@ -186,6 +188,16 @@ UNFOLD = {
                         'title': 'Questions',
                         'icon': 'search',
                         'link': reverse_lazy('questions'),
+                    },
+                    {
+                        'title': 'Consommateur',
+                        'icon': 'groups',
+                        'link': reverse_lazy('consommateur:list'),
+                    },
+                    {
+                        'title': 'Contrat',
+                        'icon': 'description',
+                        'link': reverse_lazy('contrat:list'),
                     },
                 ],
             },

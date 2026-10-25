@@ -25,5 +25,7 @@ urlpatterns = [
     path('questions/', questions, name='questions'),
     path('sources/', include('source_production.urls')),
     path('stockages/', include('stockage.urls')),
+    path('consommateurs/', include('consommateur.urls')),
+    path('contrats/', include('contrat.urls')),
     path('admin/', admin.site.urls),
 ]
