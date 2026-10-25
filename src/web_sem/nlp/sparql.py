@@ -7,6 +7,7 @@ literal. The user question is never copied into the query.
 from __future__ import annotations
 
 import re
+import threading
 
 from rdflib import BNode, Literal, URIRef
 from rdflib.plugins.sparql.algebra import translateQuery
@@ -59,6 +60,12 @@ class QueryRejected(Exception):
     """A query is not a supported read-only SELECT."""
 
 
+# RDFLib's SPARQL grammar stores parse-action arity in a closure. Django
+# serves requests on several threads, and a concurrent parse can latch the
+# wrong arity for the rest of the process. One parse at a time avoids that.
+_PARSE_LOCK = threading.Lock()
+
+
 def build_query(plan: Plan) -> str:
     if plan.intent in {LIST_INDIVIDUALS, FILTER_BY_CLASS}:
         return _select_individuals(subtree_names(plan.class_name))
@@ -84,7 +91,8 @@ def validate_select(query: str) -> None:
         raise QueryRejected("SPARQL query must declare one LIMIT.")
 
     try:
-        algebra = translateQuery(parseQuery(query)).algebra
+        with _PARSE_LOCK:
+            algebra = translateQuery(parseQuery(query)).algebra
     except QueryRejected:
         raise
     except Exception as exc:

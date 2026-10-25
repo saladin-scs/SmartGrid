@@ -28,11 +28,8 @@ urlpatterns = [
     path('stockages/', include('stockage.urls')),
     path('consommateurs/', include('consommateur.urls')),
     path('contrats/', include('contrat.urls')),
-<<<<<<< HEAD
     path('infrastructures/', include('infrastructure.urls')),
     path('transports/', include('transport.urls')),
-=======
     path('zones/', include('zone.urls')),
->>>>>>> b0b412a9791d51c46477ce8642a586af8e18dfdf
     path('admin/', admin.site.urls),
 ]
