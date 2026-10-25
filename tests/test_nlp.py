@@ -8,6 +8,13 @@ from django.urls import reverse
 from web_sem.nlp import prepare_individual_name
 from web_sem.nlp.aliases import alias_index
 from web_sem.nlp.forms import QuestionForm
+from web_sem.nlp.interpret import (
+    COUNT_INDIVIDUALS,
+    FILTER_BY_CLASS,
+    GET_DETAILS,
+    LIST_INDIVIDUALS,
+    LIST_TYPES,
+)
 from web_sem.nlp.normalize import normalize, normalized_question
 from web_sem.nlp.service import SAMPLE_QUESTIONS, Answer, answer_question
 from web_sem.nlp.sparql import QueryRejected, validate_select
@@ -23,6 +30,11 @@ EXAMPLES = [
     ("Combien de sources de production existe-t-il ?", "COUNT_INDIVIDUALS", "SourceProduction", "fr"),
     ("Combien de centrales nucléaires existe-t-il ?", "COUNT_INDIVIDUALS", "CentraleNucleaire", "fr"),
     ("Quels types de stockage sont disponibles ?", "LIST_TYPES", "Stockage", "fr"),
+    ("Liste les consommateurs", "LIST_INDIVIDUALS", "Consommateur", "fr"),
+    ("Combien de consommateurs existe-t-il ?", "COUNT_INDIVIDUALS", "Consommateur", "fr"),
+    ("Liste les contrats", "LIST_INDIVIDUALS", "Contrat", "fr"),
+    ("Combien de contrats existe-t-il ?", "COUNT_INDIVIDUALS", "Contrat", "fr"),
+    ("Liste les contrats de type AbonnementResidentiel", "FILTER_BY_CLASS", "AbonnementResidentiel", "fr"),
     ("How many nuclear plants are there?", "COUNT_INDIVIDUALS", "CentraleNucleaire", "en"),
     ("List the nuclear plants.", "FILTER_BY_CLASS", "CentraleNucleaire", "en"),
     ("What types of storage are available?", "LIST_TYPES", "Stockage", "en"),
@@ -102,6 +114,133 @@ def test_electrical_storage_keeps_its_subtree():
         assert f"<{class_iri(name)}>" in answer.sparql
     assert f"<{class_iri('BatterieLFP')}>" not in answer.sparql
     assert f"<{class_iri('Stockage')}>" not in answer.sparql
+
+
+@pytest.mark.parametrize(
+    ("root", "excluded"),
+    [
+        ("Consommateur", {"Contrat", "SourceProduction", "Stockage"}),
+        ("Contrat", {"Consommateur", "SourceProduction", "Stockage"}),
+    ],
+)
+def test_entity_queries_use_only_rdf_classes_and_asserted_types(root, excluded):
+    answer, _queries = ask(f"Liste les {root.lower()}s")
+    module = get_module(root)
+    for item in module.classes:
+        assert f"<{item.iri}>" in answer.sparql
+    for name in excluded:
+        assert f"<{class_iri(name)}>" not in answer.sparql
+    assert "?individual a ?type" in answer.sparql
+    assert "?individual ?property" not in answer.sparql
+    assert "LIMIT 100" in answer.sparql
+
+
+@pytest.mark.parametrize(
+    ("question", "root", "intent"),
+    [
+        ("Liste les consommateurs", "Consommateur", LIST_INDIVIDUALS),
+        ("Liste les contrats", "Contrat", LIST_INDIVIDUALS),
+        ("Combien de consommateurs existe-t-il ?", "Consommateur", COUNT_INDIVIDUALS),
+        ("Combien de contrats existe-t-il ?", "Contrat", COUNT_INDIVIDUALS),
+    ],
+)
+def test_consumer_and_contract_empty_and_count_results(question, root, intent):
+    bindings = [{"count": {"type": "literal", "value": "0"}}] if intent == COUNT_INDIVIDUALS else []
+    answer, queries = ask(question, bindings)
+    assert queries == [answer.sparql]
+    assert answer.intent == intent
+    if intent == COUNT_INDIVIDUALS:
+        assert answer.count == 0
+        assert "COUNT(DISTINCT ?individual)" in answer.sparql
+        assert "LIMIT 1" in answer.sparql
+    else:
+        assert answer.rows == ()
+        assert answer.empty_message
+        assert answer.count is None
+    assert f"<{class_iri(root)}>" in answer.sparql
+
+
+@pytest.mark.parametrize(
+    ("question", "class_name"),
+    [
+        ("Liste les contrats de type AbonnementResidentiel", "AbonnementResidentiel"),
+        ("Combien de contrats de type AbonnementResidentiel existe-t-il ?", "AbonnementResidentiel"),
+    ],
+)
+def test_contract_subclass_filter_uses_ontology_descendants(question, class_name):
+    answer, _queries = ask(question, [{"count": {"value": "0"}}] if question.startswith("Combien") else [])
+    module = get_module("Contrat")
+    expected = set(module.subtree_iris(class_name))
+    unrelated = set(module.subtree_iris(None)) - expected
+    assert answer.intent in {FILTER_BY_CLASS, COUNT_INDIVIDUALS}
+    assert f"<{class_iri(class_name)}>" in answer.sparql
+    assert all(f"<{iri}>" in answer.sparql for iri in expected)
+    assert all(f"<{iri}>" not in answer.sparql for iri in unrelated)
+
+
+@pytest.mark.parametrize(
+    ("question", "module_name", "individual", "class_name", "detail_url"),
+    [
+        (
+            "Affiche les détails de MaisonDemo",
+            "Consommateur",
+            "MaisonDemo",
+            "Maison",
+            "/consommateurs/i/MaisonDemo/",
+        ),
+        (
+            "Affiche les détails de ContratDemo",
+            "Contrat",
+            "ContratDemo",
+            "AbonnementResidentiel",
+            "/contrats/i/ContratDemo/",
+        ),
+    ],
+)
+def test_consumer_and_contract_details(question, module_name, individual, class_name, detail_url):
+    bindings = [
+        {
+            "individual": {"type": "uri", "value": individual_iri(individual)},
+            "type": {"type": "uri", "value": class_iri(class_name)},
+        }
+    ]
+    answer, queries = ask(question, bindings)
+    assert answer.intent == GET_DETAILS
+    assert queries == [answer.sparql]
+    assert answer.sparql.count(f"<{individual_iri(individual)}>") == 1
+    assert f"<{class_iri(class_name)}>" in answer.sparql
+    assert len(answer.rows) == 1
+    assert answer.rows[0].href == detail_url
+    assert answer.rows[0].meta == " / ".join(get_module(module_name).hierarchy(class_name))
+    assert answer.empty_message == ""
+
+
+@pytest.mark.parametrize(
+    "question",
+    [
+        "Liste les contrats de type AbonnementInconnu",
+        "Liste les consommateurs de type ConsommateurInconnu",
+        "Liste les contrats de type AbonnementResidentiel ; DROP ALL",
+        "Affiche les détails de MaisonDemo> } SERVICE <http://example.org>",
+    ],
+)
+def test_unknown_classes_and_malicious_entity_questions_never_reach_fuseki(question):
+    answer, queries = ask(question, boom=True)
+    assert answer.clarification
+    assert answer.sparql == ""
+    assert queries == []
+
+
+@pytest.mark.parametrize(("root", "question"), [
+    ("Consommateur", "Quels types de consommateurs sont disponibles ?"),
+    ("Contrat", "Quels types de contrats sont disponibles ?"),
+])
+def test_supported_class_discovery_includes_ontology_subclasses(root, question):
+    module = get_module(root)
+    bindings = [{"class": {"type": "uri", "value": item.iri}} for item in module.classes]
+    answer, _queries = ask(question, bindings)
+    assert answer.intent == LIST_TYPES
+    assert {row.meta for row in answer.rows} == {item.local_name for item in module.classes}
 
 
 def test_non_renewable_does_not_include_renewable_classes():
@@ -248,6 +387,17 @@ def test_question_form_collapses_whitespace():
 def test_sample_questions_are_supported():
     expected = {question for question, *_rest in EXAMPLES}
     expected.add("Donne-moi les détails de CentraleTunis.")
+    expected.update(
+        {
+            "Liste les consommateurs.",
+            "Combien de consommateurs existe-t-il ?",
+            "Affiche les détails de MaisonDemo.",
+            "Liste les contrats.",
+            "Combien de contrats existe-t-il ?",
+            "Liste les contrats de type AbonnementResidentiel.",
+            "Quels types de contrats sont disponibles ?",
+        }
+    )
     for sample in SAMPLE_QUESTIONS:
         assert sample in expected
 
@@ -258,6 +408,8 @@ def test_routes_stay_available():
     assert reverse("questions") == "/questions/"
     assert reverse("source_production:list") == "/sources/"
     assert reverse("stockage:list") == "/stockages/"
+    assert reverse("consommateur:list") == "/consommateurs/"
+    assert reverse("contrat:list") == "/contrats/"
 
 
 @pytest.mark.django_db
@@ -309,6 +461,56 @@ def test_question_page_runs_the_pipeline(client, monkeypatch):
     assert fake_select.queries
     validate_select(fake_select.queries[0])
     assert f"<{class_iri('CentraleNucleaire')}>" in fake_select.queries[0]
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ("question", "individual", "class_name", "detail_url"),
+    [
+        (
+            "Liste les consommateurs",
+            "MaisonDemo",
+            "Maison",
+            "/consommateurs/i/MaisonDemo/",
+        ),
+        (
+            "Liste les contrats",
+            "ContratDemo",
+            "AbonnementResidentiel",
+            "/contrats/i/ContratDemo/",
+        ),
+    ],
+)
+def test_question_page_displays_consumer_and_contract_results(
+    client, monkeypatch, question, individual, class_name, detail_url
+):
+    def fake_select(self, query: str) -> dict:
+        fake_select.queries.append(query)
+        return {
+            "results": {
+                "bindings": [
+                    {
+                        "individual": {
+                            "type": "uri",
+                            "value": individual_iri(individual),
+                        },
+                        "type": {"type": "uri", "value": class_iri(class_name)},
+                    }
+                ]
+            }
+        }
+
+    fake_select.queries = []
+    monkeypatch.setattr("web_sem.nlp.service.SparqlService.select", fake_select)
+    response = client.get("/questions/", {"q": question})
+    body = response.content.decode()
+    assert response.status_code == 200
+    assert individual in body
+    assert detail_url in body
+    assert "Generated SPARQL" in body
+    assert "&lt;http://www.semanticweb.org" in body
+    assert len(fake_select.queries) == 1
+    validate_select(fake_select.queries[0])
 
 
 @pytest.mark.django_db

@@ -1,5 +1,5 @@
 <c-layout active="questions" title="Questions">
-  <c-page-header title="Questions" eyebrow="Natural language" summary="Ask about production sources and storage. The answer is a read-only SPARQL query on the energy dataset."></c-page-header>
+  <c-page-header title="Questions" eyebrow="Natural language" summary="Ask about production sources, storage, consumers, or contracts. The answer is a read-only SPARQL query on the energy dataset."></c-page-header>
 
   <form id="question-form" class="panel question-form" method="get" action="{% url 'questions' %}">
     {% for field in form %}

@@ -39,13 +39,15 @@ _DETAIL_RE = re.compile(
     r"(?is)\b(?:d[eé]tails?|fiche|informations?|details?)\s+"
     r"(?:(?:de|du|des|d['’]|of|for|about|sur)\s+)?(\S.*?)\s*$"
 )
+_CLASS_FILTER_RE = re.compile(r"(?is)\b(?:de\s+type|type)\s+([A-Za-z][A-Za-z0-9_]*)\s*[.?!]*\s*$")
 
 _TEXT: dict[str, dict[str, str]] = {
     "fr": {
         "injection": "Cette question contient une syntaxe SPARQL. Reformulez-la en langage naturel.",
-        "empty": "Saisissez une question sur les sources de production ou le stockage.",
+        "empty": "Saisissez une question sur la production, le stockage, les consommateurs ou les contrats.",
         "unsupported": (
-            "Je ne reconnais pas cette question pour SourceProduction ou Stockage. "
+            "Je ne reconnais pas cette question pour les sources de production, le stockage, "
+            "les consommateurs ou les contrats. "
             "Par exemple : « Quelles sources de production existent ? »."
         ),
         "several": "Plusieurs classes correspondent : {names}. Précisez une seule classe.",
@@ -54,19 +56,19 @@ _TEXT: dict[str, dict[str, str]] = {
             "{name} est une classe de l'ontologie, pas un individu. "
             "Demandez une liste, un compte ou les types."
         ),
-        "reserved": "{name} est un terme de l'ontologie, pas un individu de SourceProduction ou de Stockage.",
+        "reserved": "{name} est un terme de l'ontologie, pas un individu pris en charge.",
         "bad_name": (
             "Le détail attend un nom local exact, par exemple CentraleTunis, "
             "ou un IRI de l'ontologie ENERGIE."
         ),
-        "which_class": "Précisez une classe de SourceProduction ou de Stockage.",
+        "which_class": "Précisez une classe existante dans ENERGIE.rdf.",
         "too_long": "La question est trop longue.",
         "store": "Le serveur RDF n'a pas pu exécuter cette requête.",
         "policy": "La requête générée a été refusée avant d'atteindre Fuseki.",
         "bad_result": "La réponse du serveur RDF est incomplète.",
         "empty_list": "Aucun individu de la classe {name} n'est dans le jeu de données energy.",
         "empty_details": (
-            "Aucun individu nommé {name} n'a de type SourceProduction ou Stockage "
+            "Aucun individu nommé {name} n'a de type pris en charge "
             "dans le jeu de données."
         ),
         "empty_types": "La requête n'a retourné aucune classe.",
@@ -86,9 +88,9 @@ _TEXT: dict[str, dict[str, str]] = {
     },
     "en": {
         "injection": "That question contains SPARQL syntax. Ask it in natural language.",
-        "empty": "Enter a question about production sources or storage.",
+        "empty": "Enter a question about production, storage, consumers, or contracts.",
         "unsupported": (
-            "I can't match that question to SourceProduction or Stockage. "
+            "I can't match that question to production sources, storage, consumers, or contracts. "
             'For example: "Which production sources exist?"'
         ),
         "several": "Several classes match: {names}. Name one class.",
@@ -97,15 +99,15 @@ _TEXT: dict[str, dict[str, str]] = {
             "{name} is an ontology class, not an individual. "
             "Ask for a list, a count, or the available types."
         ),
-        "reserved": "{name} is an ontology term, not a SourceProduction or Stockage individual.",
+        "reserved": "{name} is an ontology term, not a supported individual.",
         "bad_name": "Details need an exact local name such as CentraleTunis, or an IRI in the ENERGIE ontology.",
-        "which_class": "Name a SourceProduction or Stockage class.",
+        "which_class": "Name a class that exists in ENERGIE.rdf.",
         "too_long": "The question is too long.",
         "store": "The RDF store could not run this query.",
         "policy": "The generated query was rejected before it reached Fuseki.",
         "bad_result": "The RDF store returned an unexpected result.",
         "empty_list": "No individual of {name} is in the energy dataset.",
-        "empty_details": "No individual named {name} has a SourceProduction or Stockage type in the dataset.",
+        "empty_details": "No individual named {name} has a supported type in the dataset.",
         "empty_types": "The query returned no classes.",
         "list_leaf": "Individuals whose asserted type is {name}.",
         "list_tree": (
@@ -156,6 +158,18 @@ def interpret(question: str) -> Plan:
     strong = [kind for kind in _STRONG if cues.get(kind)]
     if len(strong) > 1:
         return Plan(language, clarification=say(language, "mixed"))
+    class_filter = _CLASS_FILTER_RE.search(question)
+    if class_filter:
+        requested_class = _exact_class(class_filter.group(1))
+        if requested_class is None:
+            return Plan(language, clarification=say(language, "which_class"))
+        target = locate(requested_class)
+        roots = [hit for hit in hits if is_root(hit.local_name)]
+        root_modules = {locate(hit.local_name)[0].root for hit in roots}
+        if target is None or (root_modules and root_modules != {target[0].root}):
+            return Plan(language, clarification=say(language, "which_class"))
+        if cues.get("list") or not strong:
+            return Plan(language, FILTER_BY_CLASS, requested_class)
 
     if "details" in strong or _DETAIL_RE.search(question):
         if strong and strong != ["details"]:

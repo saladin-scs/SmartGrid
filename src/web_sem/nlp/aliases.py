@@ -10,7 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from functools import lru_cache
 
-from web_sem.nlp.catalog import known_names
+from web_sem.nlp.catalog import all_class_names, known_names
 from web_sem.nlp.normalize import normalized_question
 from web_sem.ontology import OntologyError
 
@@ -187,7 +187,9 @@ _ALIASES: tuple[tuple[str, str, str], ...] = (
     ("fr", "véhicule électrique", "VehiculeElectrique"),
     ("en", "electric vehicle", "VehiculeElectrique"),
     ("fr", "contrat", "Contrat"),
+    ("fr", "contrats", "Contrat"),
     ("en", "contract", "Contrat"),
+    ("en", "contracts", "Contrat"),
     ("fr", "contrat abonnement", "ContratAbonnement"),
     ("en", "subscription contract", "ContratAbonnement"),
     ("fr", "abonnement professionnel", "AbonnementProfessionnel"),
@@ -287,6 +289,16 @@ def alias_index() -> tuple[Alias, ...]:
             )
         if current is None:
             found[key] = Alias(key, local_name, language)
+    for local_name in all_class_names():
+        key = normalized_question(local_name)
+        current = found.get(key)
+        if current and current.local_name != local_name:
+            raise OntologyError(
+                f"Ontology class name {local_name!r} conflicts with alias for "
+                f"{current.local_name}."
+            )
+        if current is None:
+            found[key] = Alias(key, local_name, "fr")
     return tuple(sorted(found.values(), key=lambda item: (-len(item.phrase), item.phrase)))
 
 
