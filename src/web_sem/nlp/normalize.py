@@ -1,8 +1,8 @@
-"""Normalize questions without a downloaded language model.
+"""Normalize questions using spaCy's French language model.
 
-spaCy's blank French tokenizer splits punctuation and clitics such as ``d'``.
-It does not load ``fr_core_news`` or any other pipeline, and it is not created
-until the first question is interpreted.
+Loads ``fr_core_news_sm`` for tokenization, which handles French clitics such
+as ``d'``, ``l'``, ``j'`` and punctuation more accurately than a blank model.
+Falls back to a regex tokenizer when the model is unavailable.
 """
 
 from __future__ import annotations
@@ -75,7 +75,7 @@ def _token_texts(text: str) -> list[str]:
 
 
 def _french_tokenizer():
-    """Return a blank French tokenizer, or None when spaCy is unavailable."""
+    """Return the fr_core_news_sm pipeline, or None when unavailable."""
     global _tokenizer
     if _tokenizer is False:
         return None
@@ -83,8 +83,8 @@ def _french_tokenizer():
         try:
             import spacy
 
-            _tokenizer = spacy.blank("fr")
-        except (ImportError, OSError):
+            _tokenizer = spacy.load("fr_core_news_sm")
+        except (ImportError, OSError, OverflowError):
             _tokenizer = False
             return None
     return _tokenizer
