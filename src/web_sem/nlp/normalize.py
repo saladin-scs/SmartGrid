@@ -84,7 +84,7 @@ def _french_tokenizer():
             import spacy
 
             _tokenizer = spacy.load("fr_core_news_sm")
-        except (ImportError, OSError):
+        except (ImportError, OSError, OverflowError):
             _tokenizer = False
             return None
     return _tokenizer

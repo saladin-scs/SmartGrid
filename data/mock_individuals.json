@@ -1,3 +1,6 @@
 {
-  "eolsfax": "SiteInstallation"
+  "eolsfax": "SiteInstallation",
+  "basse_tension_tunis": "LigneBasseTensionAerienne",
+  "sana": "Consommateur",
+  "source_de_electrique_tunis": "StockageElectrique"
 }
