@@ -19,12 +19,17 @@ MAX_LOCAL_NAME = 80
 _DISPLAY_BOUNDARY = re.compile(r"(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])")
 
 _MODULE_KEYS = {
+    "Personne": "personne",
     "SourceProduction": "source_production",
     "Stockage": "stockage",
     "Consommateur": "consommateur",
     "Contrat": "contrat",
+<<<<<<< HEAD
     "Infrastructure": "infrastructure",
     "Transport": "transport",
+=======
+    "Zone": "zone",
+>>>>>>> b0b412a9791d51c46477ce8642a586af8e18dfdf
 }
 
 
