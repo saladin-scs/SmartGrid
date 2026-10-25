@@ -23,6 +23,8 @@ _MODULE_KEYS = {
     "Stockage": "stockage",
     "Consommateur": "consommateur",
     "Contrat": "contrat",
+    "Infrastructure": "infrastructure",
+    "Transport": "transport",
 }
 
 

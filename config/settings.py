@@ -51,6 +51,8 @@ INSTALLED_APPS = [
     'stockage',
     'consommateur',
     'contrat',
+    'infrastructure',
+    'transport',
 ]
 
 MIDDLEWARE = [
@@ -198,6 +200,16 @@ UNFOLD = {
                         'title': 'Contrat',
                         'icon': 'description',
                         'link': reverse_lazy('contrat:list'),
+                    },
+                    {
+                        'title': 'Infrastructure',
+                        'icon': 'router',
+                        'link': reverse_lazy('infrastructure:list'),
+                    },
+                    {
+                        'title': 'Transport',
+                        'icon': 'directions',
+                        'link': reverse_lazy('transport:list'),
                     },
                 ],
             },

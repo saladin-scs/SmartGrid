@@ -200,6 +200,14 @@ _ALIASES: tuple[tuple[str, str, str], ...] = (
     ("en", "residential subscription", "AbonnementResidentiel"),
     ("fr", "facture", "Facture"),
     ("en", "invoice", "Facture"),
+    ("fr", "infrastructure", "Infrastructure"),
+    ("fr", "infrastructures", "Infrastructure"),
+    ("en", "infrastructure", "Infrastructure"),
+    ("en", "infrastructures", "Infrastructure"),
+    ("fr", "transport", "Transport"),
+    ("fr", "transports", "Transport"),
+    ("en", "transport", "Transport"),
+    ("en", "transports", "Transport"),
 )
 
 _CUES: dict[str, dict[str, tuple[str, ...]]] = {
