@@ -1,0 +1,8 @@
+<header class="page-header">
+  <div>
+    {% if eyebrow %}<p class="eyebrow">{{ eyebrow }}</p>{% endif %}
+    <h1>{{ title }}</h1>
+    {% if summary %}<p class="summary">{{ summary }}</p>{% endif %}
+  </div>
+  {% if slot %}<div class="actions">{{ slot }}</div>{% endif %}
+</header>

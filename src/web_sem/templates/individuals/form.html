@@ -1,0 +1,18 @@
+<c-layout :active="module.key" :title="page_title">
+  <c-page-header :title="page_title" :eyebrow="module.root"></c-page-header>
+  {% if individual %}
+    <p class="identity">Individual <code>{{ individual.local_name }}</code></p>
+    <p class="identity"><code>{{ individual.iri }}</code></p>
+  {% endif %}
+  <form class="panel" method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {% for field in form %}
+      <c-field :field="field"></c-field>
+    {% endfor %}
+    <div class="actions">
+      <button class="button" type="submit">Save</button>
+      <a class="button button-quiet" href="{{ cancel_url }}">Cancel</a>
+    </div>
+  </form>
+</c-layout>

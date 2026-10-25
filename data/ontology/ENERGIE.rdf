@@ -1,0 +1,1272 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9/"
+     xml:base="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9/"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+    <owl:Ontology rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#alimente -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#alimente">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Infrastructure"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Consommateur"/>
+    </owl:ObjectProperty>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#intervientSur -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#intervientSur">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Technicien"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Infrastructure"/>
+    </owl:ObjectProperty>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#supervise -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#supervise">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Operateur"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Poste"/>
+    </owl:ObjectProperty>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#utilise -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#utilise">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Technicien"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#VehiculeIntervention"/>
+    </owl:ObjectProperty>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#declenche -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#declenche">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CapteurDispositif"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Evenement"/>
+    </owl:ObjectProperty>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#concerne -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#concerne">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Maintenance"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Infrastructure"/>
+    </owl:ObjectProperty>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#souscrit -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#souscrit">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#ClientAbonne"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#ContratAbonnement"/>
+    </owl:ObjectProperty>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#estSitueDans -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#estSitueDans">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Infrastructure"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Zone"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#nomPersonne -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#nomPersonne">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Personne"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#dateEvenement -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#dateEvenement">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Evenement"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#date"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BarrageHydroelectrique -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BarrageHydroelectrique">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Hydraulique"/>
+        <owl:disjointWith rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CentraleAuFil"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BatimentIndustriel -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BatimentIndustriel">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Consommateur"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BatimentResidentiel -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BatimentResidentiel">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Consommateur"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BatimentTertiaire -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BatimentTertiaire">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Consommateur"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BatterieLithiumIon -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BatterieLithiumIon">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#StockageElectrochimique"/>
+        <owl:disjointWith rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BatteriePlombAcide"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BatteriePlombAcide -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BatteriePlombAcide">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#StockageElectrochimique"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Biomasse -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Biomasse">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#EnergieRenouvelable"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Bureau -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Bureau">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BatimentTertiaire"/>
+        <owl:disjointWith rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CommerceGrandeSurface"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CapteurDispositif -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CapteurDispositif"/>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CapteurProduction -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CapteurProduction">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CapteurDispositif"/>
+        <owl:disjointWith rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CompteurIntelligent"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CentraleAuFil -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CentraleAuFil">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Hydraulique"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CentraleCharbon -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CentraleCharbon">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#EnergieNonRenouvelable"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CentraleGaz -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CentraleGaz">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#EnergieNonRenouvelable"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CentraleNucleaire -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CentraleNucleaire">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#EnergieNonRenouvelable"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CentraleSolaireThermique -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CentraleSolaireThermique">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Solaire"/>
+        <owl:disjointWith rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#PanneauPhotovoltaique"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CommerceGrandeSurface -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CommerceGrandeSurface">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BatimentTertiaire"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CompteurIntelligent -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CompteurIntelligent">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CapteurDispositif"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Consommateur -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Consommateur"/>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#EnergieNonRenouvelable -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#EnergieNonRenouvelable">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SourceProduction"/>
+        <owl:disjointWith rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#EnergieRenouvelable"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#EnergieRenouvelable -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#EnergieRenouvelable">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SourceProduction"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Eolien -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Eolien">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#EnergieRenouvelable"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#EolienneOffshore -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#EolienneOffshore">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Eolien"/>
+        <owl:disjointWith rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#EolienneTerrestre"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#EolienneTerrestre -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#EolienneTerrestre">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Eolien"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Hydraulique -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Hydraulique">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#EnergieRenouvelable"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Immeuble -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Immeuble">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BatimentResidentiel"/>
+        <owl:disjointWith rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Maison"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Infrastructure -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Infrastructure"/>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneBasseTension -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneBasseTension">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneTransport"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneHauteTension -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneHauteTension">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneTransport"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneMoyenneTension -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneMoyenneTension">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneTransport"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneTransport -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneTransport">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Infrastructure"/>
+        <owl:disjointWith rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Poste"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Maison -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Maison">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BatimentResidentiel"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#PanneauPhotovoltaique -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#PanneauPhotovoltaique">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Solaire"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Poste -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Poste">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Infrastructure"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#PosteSource -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#PosteSource">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Poste"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#PosteTransformation -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#PosteTransformation">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Poste"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Solaire -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Solaire">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#EnergieRenouvelable"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SourceProduction -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SourceProduction"/>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SousStation -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SousStation">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Poste"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#StationPompage -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#StationPompage">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#StockageMecanique"/>
+        <owl:disjointWith rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#VolantInertie"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Stockage -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Stockage"/>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#StockageElectrique -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#StockageElectrique">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Stockage"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#StockageElectrochimique -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#StockageElectrochimique">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Stockage"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#StockageMecanique -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#StockageMecanique">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Stockage"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Supercondensateur -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Supercondensateur">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#StockageElectrique"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#VehiculeElectrique -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#VehiculeElectrique">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Consommateur"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#VolantInertie -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#VolantInertie">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#StockageMecanique"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Personne -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Personne"/>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Ingenieur -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Ingenieur">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Personne"/>
+    </owl:Class>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Technicien -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Technicien">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Personne"/>
+    </owl:Class>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Operateur -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Operateur">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Personne"/>
+    </owl:Class>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#ClientAbonne -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#ClientAbonne">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Personne"/>
+    </owl:Class>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Transport -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Transport"/>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#VehiculeIntervention -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#VehiculeIntervention">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Transport"/>
+    </owl:Class>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CamionLivraison -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CamionLivraison">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Transport"/>
+    </owl:Class>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Evenement -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Evenement"/>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Panne -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Panne">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Evenement"/>
+    </owl:Class>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Maintenance -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Maintenance">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Evenement"/>
+    </owl:Class>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#AlerteSurcharge -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#AlerteSurcharge">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Evenement"/>
+    </owl:Class>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Contrat -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Contrat"/>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#ContratAbonnement -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#ContratAbonnement">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Contrat"/>
+    </owl:Class>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Facture -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Facture">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Contrat"/>
+    </owl:Class>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Zone -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Zone"/>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Ville -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Ville">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Zone"/>
+    </owl:Class>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteInstallation -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteInstallation">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Zone"/>
+    </owl:Class>
+    
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneHauteTensionAerienne -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneHauteTensionAerienne">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneHauteTension"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneHauteTensionSouterraine -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneHauteTensionSouterraine">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneHauteTension"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneMoyenneTensionAerienne -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneMoyenneTensionAerienne">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneMoyenneTension"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneMoyenneTensionSouterraine -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneMoyenneTensionSouterraine">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneMoyenneTension"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneBasseTensionAerienne -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneBasseTensionAerienne">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneBasseTension"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneBasseTensionSouterraine -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneBasseTensionSouterraine">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneBasseTension"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#PosteTransformationHTMT -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#PosteTransformationHTMT">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#PosteTransformation"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#PosteTransformationMTBT -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#PosteTransformationMTBT">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#PosteTransformation"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#VillaIndividuelle -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#VillaIndividuelle">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Maison"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#MaisonJumelee -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#MaisonJumelee">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Maison"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Hypermarche -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Hypermarche">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CommerceGrandeSurface"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Supermarche -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Supermarche">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CommerceGrandeSurface"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BobineSupraconductrice -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BobineSupraconductrice">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#StockageElectrique"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BatterieLFP -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BatterieLFP">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BatterieLithiumIon"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BatterieNMC -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BatterieNMC">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BatterieLithiumIon"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CapteurProductionRenouvelable -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CapteurProductionRenouvelable">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CapteurProduction"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CapteurProductionThermique -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CapteurProductionThermique">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CapteurProduction"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CapteurPhotovoltaique -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CapteurPhotovoltaique">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CapteurProductionRenouvelable"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CapteurEolien -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CapteurEolien">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CapteurProductionRenouvelable"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#TechnicienMaintenance -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#TechnicienMaintenance">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Technicien"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#TechnicienExploitation -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#TechnicienExploitation">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Technicien"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#TechnicienLigne -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#TechnicienLigne">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#TechnicienMaintenance"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#TechnicienPoste -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#TechnicienPoste">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#TechnicienMaintenance"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#VehiculeLeger -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#VehiculeLeger">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#VehiculeIntervention"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#VehiculeLourd -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#VehiculeLourd">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#VehiculeIntervention"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CamionNacelle -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CamionNacelle">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#VehiculeLourd"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CamionGrue -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CamionGrue">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#VehiculeLourd"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#PanneElectrique -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#PanneElectrique">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Panne"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#PanneMecanique -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#PanneMecanique">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Panne"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CourtCircuit -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CourtCircuit">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#PanneElectrique"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CoupureAlimentation -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CoupureAlimentation">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#PanneElectrique"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#MaintenancePreventive -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#MaintenancePreventive">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Maintenance"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#MaintenanceCorrective -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#MaintenanceCorrective">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Maintenance"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#AbonnementResidentiel -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#AbonnementResidentiel">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#ContratAbonnement"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#AbonnementProfessionnel -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#AbonnementProfessionnel">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#ContratAbonnement"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#AbonnementIndustriel -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#AbonnementIndustriel">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#AbonnementProfessionnel"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#AbonnementCommercial -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#AbonnementCommercial">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#AbonnementProfessionnel"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteProduction -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteProduction">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteInstallation"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteStockage -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteStockage">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteInstallation"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteSolaire -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteSolaire">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteProduction"/>
+    </owl:Class>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteEolien -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteEolien">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteProduction"/>
+    </owl:Class>
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Centrale_Gabes -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Centrale_Gabes">
+        <rdf:type rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CentraleGaz"/>
+    </owl:NamedIndividual>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Ingenieur_Amal -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Ingenieur_Amal">
+        <rdf:type rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Ingenieur"/>
+        <nomPersonne rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Amal</nomPersonne>
+    </owl:NamedIndividual>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Technicien_Walid -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Technicien_Walid">
+        <rdf:type rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Technicien"/>
+        <nomPersonne rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Walid</nomPersonne>
+        <utilise rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#VehiculeIntervention_1"/>
+    </owl:NamedIndividual>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#VehiculeIntervention_1 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#VehiculeIntervention_1">
+        <rdf:type rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#VehiculeIntervention"/>
+    </owl:NamedIndividual>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Panne_1 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Panne_1">
+        <rdf:type rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Panne"/>
+        <dateEvenement rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2026-09-15</dateEvenement>
+    </owl:NamedIndividual>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#ClientAbonne_LacTunis -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#ClientAbonne_LacTunis">
+        <rdf:type rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#ClientAbonne"/>
+        <souscrit rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#ContratAbonnement_1"/>
+    </owl:NamedIndividual>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#ContratAbonnement_1 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#ContratAbonnement_1">
+        <rdf:type rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#ContratAbonnement"/>
+    </owl:NamedIndividual>
+
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Ville_Sfax -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Ville_Sfax">
+        <rdf:type rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Ville"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // General axioms
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BatimentIndustriel"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BatimentResidentiel"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BatimentTertiaire"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#VehiculeElectrique"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Biomasse"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Eolien"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Hydraulique"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Solaire"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CapteurDispositif"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Consommateur"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Infrastructure"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SourceProduction"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Stockage"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CentraleCharbon"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CentraleGaz"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CentraleNucleaire"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneBasseTension"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneHauteTension"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneMoyenneTension"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#PosteSource"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#PosteTransformation"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SousStation"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#StockageElectrique"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#StockageElectrochimique"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#StockageMecanique"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Personne"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Transport"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Evenement"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Contrat"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Zone"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Ingenieur"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Technicien"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Operateur"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#ClientAbonne"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#VehiculeIntervention"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CamionLivraison"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Panne"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Maintenance"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#AlerteSurcharge"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#ContratAbonnement"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Facture"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Ville"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteInstallation"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneHauteTensionAerienne"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneHauteTensionSouterraine"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneMoyenneTensionAerienne"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneMoyenneTensionSouterraine"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneBasseTensionAerienne"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#LigneBasseTensionSouterraine"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#PosteTransformationHTMT"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#PosteTransformationMTBT"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#VillaIndividuelle"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#MaisonJumelee"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Hypermarche"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Supermarche"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BatterieLFP"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BatterieNMC"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CapteurProductionRenouvelable"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CapteurProductionThermique"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CapteurPhotovoltaique"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CapteurEolien"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#TechnicienMaintenance"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#TechnicienExploitation"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#TechnicienLigne"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#TechnicienPoste"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#VehiculeLeger"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#VehiculeLourd"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CamionNacelle"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CamionGrue"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#PanneElectrique"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#PanneMecanique"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CourtCircuit"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#CoupureAlimentation"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#MaintenancePreventive"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#MaintenanceCorrective"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#AbonnementResidentiel"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#AbonnementProfessionnel"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#AbonnementIndustriel"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#AbonnementCommercial"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteProduction"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteStockage"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteSolaire"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteEolien"/>
+        </owl:members>
+    </rdf:Description>
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Supercondensateur"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BobineSupraconductrice"/>
+        </owl:members>
+    </rdf:Description>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 4.5.29.2024-05-13T12:11:03Z) https://github.com/owlcs/owlapi -->
+

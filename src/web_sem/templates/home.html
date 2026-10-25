@@ -1,0 +1,16 @@
+<c-layout active="home" title="ENERGIE">
+  <c-page-header title="ENERGIE" eyebrow="Ontology" summary="Production sources and storage are stored as RDF individuals in Apache Jena Fuseki."></c-page-header>
+  <div class="cards">
+    {% for module in modules %}
+      <a class="card" href="{% url module.list_url_name %}">
+        <h2>{{ module.root }}</h2>
+        <p>{{ module.classes|length }} classes in this hierarchy</p>
+        <ul>
+          {% for item in module.classes %}
+            {% if item.depth == 1 %}<li>{{ item.display_name }}</li>{% endif %}
+          {% endfor %}
+        </ul>
+      </a>
+    {% endfor %}
+  </div>
+</c-layout>

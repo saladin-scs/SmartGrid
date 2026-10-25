@@ -1,0 +1,27 @@
+<c-layout :active="module.key" :title="individual.local_name">
+  <c-page-header :title="individual.local_name" :eyebrow="module.root">
+    <a class="button" href="{% url module.edit_url_name individual.local_name %}">Edit</a>
+    <a class="button button-danger" href="{% url module.delete_url_name individual.local_name %}">Delete</a>
+  </c-page-header>
+
+  <dl class="facts">
+    <div>
+      <dt>IRI</dt>
+      <dd><code>{{ individual.iri }}</code></dd>
+    </div>
+    <div>
+      <dt>rdf:type</dt>
+      <dd>{{ individual.class_name }}</dd>
+    </div>
+    <div>
+      <dt>Class hierarchy</dt>
+      <dd>
+        {% for name in individual.hierarchy %}
+          {% if not forloop.first %}<span aria-hidden="true"> / </span>{% endif %}
+          <span>{{ name }}</span>
+        {% endfor %}
+      </dd>
+    </div>
+  </dl>
+  <p><a href="{% url module.list_url_name %}">Back to {{ module.root }}</a></p>
+</c-layout>

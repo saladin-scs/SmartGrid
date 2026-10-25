@@ -1,0 +1,5 @@
+<c-layout :active="active" title="RDF store unavailable">
+  <c-alert>The RDF store could not complete this request.</c-alert>
+  {% if message %}<p class="identity"><code>{{ message }}</code></p>{% endif %}
+  <p><a href="{% url 'home' %}">Back to home</a></p>
+</c-layout>
