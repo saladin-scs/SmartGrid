@@ -149,7 +149,7 @@ MAILERS = {
 # Apache Jena Fuseki
 # Query URL prefers FUSEKI_QUERY_URL, then SPARQL_ENDPOINT, then FUSEKI_URL/FUSEKI_DATASET.
 
-USE_MOCK_RDF = os.getenv('USE_MOCK_RDF', 'true').lower() == 'true'
+USE_MOCK_RDF = os.getenv('USE_MOCK_RDF', 'false').lower() == 'true'
 
 FUSEKI_URL = os.getenv('FUSEKI_URL', 'http://127.0.0.1:3030').strip().rstrip('/')
 FUSEKI_DATASET = os.getenv('FUSEKI_DATASET', 'energy').strip().strip('/')
@@ -204,6 +204,11 @@ UNFOLD = {
                         'title': 'Questions',
                         'icon': 'search',
                         'link': reverse_lazy('questions'),
+                    },
+                    {
+                        'title': 'Créer un individu',
+                        'icon': 'add',
+                        'link': reverse_lazy('entity_creation'),
                     },
                     {
                         'title': 'Consommateur',

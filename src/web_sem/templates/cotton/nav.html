@@ -6,6 +6,7 @@
       <a href="{% url module.list_url_name %}" {% if active == module.key %}aria-current="page"{% endif %}>{{ module.root }}</a>
     {% endfor %}
     <a href="{% url 'questions' %}" {% if active == "questions" %}aria-current="page"{% endif %}>Questions</a>
+    <a href="{% url 'entity_creation' %}" {% if active == "creation" %}aria-current="page"{% endif %}>Créer un individu</a>
     <a href="{% url 'admin:index' %}">Admin</a>
   </nav>
 </header>

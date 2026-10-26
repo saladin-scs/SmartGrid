@@ -1,0 +1,46 @@
+<c-layout active="creation" title="Créer un individu RDF">
+  <c-page-header
+    title="Créer un individu RDF"
+    eyebrow="Création en langage naturel"
+    summary="Décrivez l’individu en français. L’insertion n’a lieu qu’après vérification de l’aperçu et confirmation."
+  ></c-page-header>
+
+  <form class="panel question-form" method="post" action="{% url 'entity_creation' %}">
+    {% csrf_token %}
+    <c-field :field="form.description"></c-field>
+    {% if preview %}
+      <c-field :field="form.confirmed"></c-field>
+    {% endif %}
+    {{ form.non_field_errors }}
+    {% if form.description.errors %}{{ form.description.errors }}{% endif %}
+    <button class="button" type="submit" name="action" value="preview">Prévisualiser les triples</button>
+    {% if preview %}
+      <button class="button" type="submit" name="action" value="confirm">Confirmer l’insertion</button>
+    {% endif %}
+  </form>
+
+  {% if preview %}
+    <section class="panel answer-panel" aria-label="Prévisualisation RDF">
+      <h2>Aperçu — aucune donnée n’a encore été écrite</h2>
+      <dl>
+        <dt>Individu</dt>
+        <dd>{{ preview.local_name }} <span class="help">{{ preview.individual_iri }}</span></dd>
+        <dt>Classe</dt>
+        <dd>{{ preview.class_label }} <span class="help">{{ preview.class_name }}</span></dd>
+      </dl>
+      {% if preview.properties %}
+        <h3>Propriétés explicites</h3>
+        <ul>
+          {% for property in preview.properties %}
+            <li>{{ property.label }} : {{ property.value }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>Aucune propriété supplémentaire n’a été déduite ou ajoutée.</p>
+      {% endif %}
+      <h3>Triples RDF</h3>
+      <pre class="sparql"><code>{% for triple in preview.rendered_triples %}{{ triple }}
+{% endfor %}</code></pre>
+    </section>
+  {% endif %}
+</c-layout>

@@ -17,12 +17,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
-from web_sem.nlp.views import questions
+from web_sem.nlp.views import create_entity, questions
 from web_sem.views import home
 
 urlpatterns = [
     path('', home, name='home'),
     path('questions/', questions, name='questions'),
+    path('creation/', create_entity, name='entity_creation'),
     path('personnes/', include('personne.urls')),
     path('sources/', include('source_production.urls')),
     path('stockages/', include('stockage.urls')),
