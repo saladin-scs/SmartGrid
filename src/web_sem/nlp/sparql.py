@@ -39,6 +39,7 @@ _ALLOWED_NODES = frozenset(
         "Builtin_STR",
         "Builtin_LCASE",
         "Join",
+        "LeftJoin",
         "ToMultiSet",
         "values",
         "BGP",
@@ -102,16 +103,17 @@ def _select_individuals(local_names: list[str]) -> str:
     values = _class_values(local_names)
     namespace = _namespace_literal()
     return (
-        "SELECT ?individual ?type\n"
+        "SELECT ?type ?individual\n"
         "WHERE {\n"
         f"  VALUES ?type {{ {values} }}\n"
-        "  ?individual a ?type .\n"
-        f"  FILTER(STRSTARTS(STR(?individual), {namespace}))\n"
+        "  OPTIONAL {\n"
+        "    ?individual a ?type .\n"
+        f"    FILTER(STRSTARTS(STR(?individual), {namespace}))\n"
+        "  }\n"
         "}\n"
-        "ORDER BY LCASE(STR(?individual))\n"
+        "ORDER BY STR(?type) LCASE(STR(?individual))\n"
         f"LIMIT {RESULT_LIMIT}\n"
     )
-
 
 def _count_individuals(local_names: list[str]) -> str:
     values = _class_values(local_names)
