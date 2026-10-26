@@ -1,13 +1,13 @@
 <c-layout :active="module.key" :title="module.root">
-  <c-page-header :title="module.root" eyebrow="Ontology module" summary="RDF individuals of this class or one of its subclasses.">
-    <a class="button" href="{% url module.create_url_name %}">New individual</a>
+  <c-page-header :title="module.root" eyebrow="Domaine de l’ontologie" summary="Individus RDF de cette classe ou de l’une de ses sous-classes.">
+    <a class="button" href="{% url module.create_url_name %}"><i data-lucide="plus"></i> Nouvel individu</a>
   </c-page-header>
 
   <form class="filters" method="get" action="{% url module.list_url_name %}">
     {% for field in search_form %}
       <c-field :field="field"></c-field>
     {% endfor %}
-    <button class="button" type="submit">Search</button>
+    <button class="button" type="submit"><i data-lucide="search"></i> Rechercher</button>
   </form>
   {{ search_form.non_field_errors }}
 
@@ -16,8 +16,8 @@
       <table>
         <thead>
           <tr>
-            <th>Individual</th>
-            <th>Class</th>
+            <th>Individu</th>
+            <th>Classe</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -29,8 +29,8 @@
               </td>
               <td data-label="Class">{{ individual.class_display }}</td>
               <td class="row-actions" data-label="Actions">
-                <a href="{% url module.edit_url_name individual.local_name %}">Edit</a>
-                <a href="{% url module.delete_url_name individual.local_name %}">Delete</a>
+                <a href="{% url module.edit_url_name individual.local_name %}">Modifier</a>
+                <a href="{% url module.delete_url_name individual.local_name %}">Supprimer</a>
               </td>
             </tr>
           {% endfor %}
@@ -38,6 +38,6 @@
       </table>
     </div>
   {% else %}
-    <p class="empty">No individuals match this search.</p>
+    <p class="empty">Aucun individu ne correspond à cette recherche.</p>
   {% endif %}
 </c-layout>

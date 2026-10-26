@@ -18,10 +18,13 @@ from django.contrib import admin
 from django.urls import include, path
 
 from web_sem.nlp.views import create_entity, questions
-from web_sem.views import home
+from web_sem.views import graph_data, graph_explorer, home, overview
 
 urlpatterns = [
     path('', home, name='home'),
+    path('workspace/', overview, name='overview'),
+    path('graph/', graph_explorer, name='graph'),
+    path('graph/data/', graph_data, name='graph_data'),
     path('questions/', questions, name='questions'),
     path('creation/', create_entity, name='entity_creation'),
     path('personnes/', include('personne.urls')),

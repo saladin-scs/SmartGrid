@@ -21,7 +21,7 @@ class IndividualSearchForm(forms.Form):
 
     q = forms.CharField(
         required=False,
-        label="Name",
+        label="Nom",
         max_length=MAX_LOCAL_NAME,
         widget=forms.TextInput(attrs={"class": "control"}),
     )
@@ -31,8 +31,8 @@ class IndividualSearchForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields["rdf_type"] = forms.ChoiceField(
             required=False,
-            label="Class",
-            choices=[("", "All classes"), *self.module.choice_tuples()],
+            label="Classe",
+            choices=[("", "Toutes les classes"), *self.module.choice_tuples()],
             widget=forms.Select(attrs={"class": "control"}),
         )
 
@@ -42,7 +42,7 @@ class IndividualSearchForm(forms.Form):
     def clean_rdf_type(self) -> str:
         value = self.cleaned_data["rdf_type"]
         if value and value not in self.module.classes_by_name:
-            raise forms.ValidationError("Choose a class from this module.")
+            raise forms.ValidationError("Choisissez une classe de ce domaine.")
         return value
 
 
@@ -55,18 +55,18 @@ class IndividualForm(forms.Form):
         super().__init__(*args, **kwargs)
         if not editing:
             self.fields["local_name"] = forms.CharField(
-                label="Individual name",
+                label="Nom de l’individu",
                 max_length=MAX_LOCAL_NAME,
                 help_text=(
-                    "Local name of the RDF individual. It becomes the IRI fragment "
-                    "and is not an ontology property."
+                    "Nom local de l’individu RDF. Il devient la partie finale de l’IRI "
+                    "et ne correspond pas à une propriété de l’ontologie."
                 ),
                 widget=forms.TextInput(attrs={"class": "control", "autocomplete": "off"}),
             )
         self.fields["rdf_type"] = forms.ChoiceField(
-            label="Class",
+            label="Classe",
             choices=self.module.choice_tuples(),
-            help_text="Existing ontology class asserted with rdf:type.",
+            help_text="Classe existante de l’ontologie ajoutée avec rdf:type.",
             widget=forms.Select(attrs={"class": "control"}),
         )
 
@@ -74,21 +74,21 @@ class IndividualForm(forms.Form):
         name = prepare_individual_name(self.cleaned_data["local_name"])
         if not LOCAL_NAME_RE.fullmatch(name) or len(name) > MAX_LOCAL_NAME:
             raise forms.ValidationError(
-                "Use letters, digits, and underscores, and start with a letter."
+                "Utilisez des lettres, des chiffres ou des traits de soulignement, en commençant par une lettre."
             )
         if name in reserved_names():
             raise forms.ValidationError(
-                "This name is an ontology class or property, not an individual."
+                "Ce nom correspond à une classe ou propriété de l’ontologie, pas à un individu."
             )
         try:
             if IndividualRepository().exists(name):
-                raise forms.ValidationError("An RDF individual with this name already exists.")
+                raise forms.ValidationError("Un individu RDF portant ce nom existe déjà.")
         except SparqlServiceError as exc:
-            raise forms.ValidationError("The RDF store could not be reached.") from exc
+            raise forms.ValidationError("Le magasin RDF n’est pas joignable.") from exc
         return name
 
     def clean_rdf_type(self) -> str:
         value = self.cleaned_data["rdf_type"]
         if value not in self.module.classes_by_name:
-            raise forms.ValidationError("Choose a class from this module.")
+            raise forms.ValidationError("Choisissez une classe de ce domaine.")
         return value

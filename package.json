@@ -1,0 +1,19 @@
+{
+  "name": "smartgrid-frontend",
+  "private": true,
+  "scripts": {
+    "build": "npm run build:css && npm run build:js",
+    "build:css": "tailwindcss -i ./src/web_sem/static/web_sem/input.css -o ./src/web_sem/static/web_sem/app.css --minify",
+    "build:js": "node -e \"require('node:fs').rmSync('src/web_sem/static/web_sem/build', { recursive: true, force: true })\" && esbuild ./frontend/app.js --bundle --minify --format=esm --splitting --outdir=./src/web_sem/static/web_sem/build --entry-names=app --chunk-names=chunks/[name]-[hash]"
+  },
+  "dependencies": {
+    "chart.js": "4.5.1",
+    "cytoscape": "3.34.4",
+    "lucide": "1.61.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "4.3.3",
+    "esbuild": "0.27.0",
+    "tailwindcss": "4.3.3"
+  }
+}

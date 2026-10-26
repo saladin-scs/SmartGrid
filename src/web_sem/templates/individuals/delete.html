@@ -1,13 +1,13 @@
 <c-layout :active="module.key" :title="individual.local_name">
-  <c-page-header title="Delete individual" :eyebrow="module.root"></c-page-header>
+  <c-page-header title="Supprimer un individu" :eyebrow="module.root"></c-page-header>
   <form class="panel" method="post">
     {% csrf_token %}
-    <p>Delete <strong>{{ individual.local_name }}</strong>, an individual of <strong>{{ individual.class_name }}</strong>?</p>
+    <p>Supprimer <strong>{{ individual.local_name }}</strong>, un individu de la classe <strong>{{ individual.class_name }}</strong> ?</p>
     <p class="identity"><code>{{ individual.iri }}</code></p>
-    <p>This removes the individual's triples from Fuseki.</p>
+    <p>Cette opération supprimera les triples de cet individu dans Fuseki.</p>
     <div class="actions">
-      <button class="button button-danger" type="submit">Delete</button>
-      <a class="button button-quiet" href="{% url module.detail_url_name individual.local_name %}">Cancel</a>
+      <button class="button button-danger" type="submit"><i data-lucide="trash-2"></i> Supprimer</button>
+      <a class="button button-quiet" href="{% url module.detail_url_name individual.local_name %}">Annuler</a>
     </div>
   </form>
 </c-layout>

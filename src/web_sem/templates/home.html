@@ -1,24 +1,57 @@
-<c-layout active="home" title="ENERGIE">
-  <c-page-header title="ENERGIE" eyebrow="Ontology" summary="Production sources and storage are stored as RDF individuals in Apache Jena Fuseki."></c-page-header>
-  <div class="cards">
-    {% for module in modules %}
-      <a class="card" href="{% url module.list_url_name %}">
-        <h2>{{ module.root }}</h2>
-        <p>{{ module.classes|length }} classes in this hierarchy</p>
-        <ul>
-          {% for item in module.classes %}
-            {% if item.depth == 1 %}<li>{{ item.display_name }}</li>{% endif %}
-          {% endfor %}
-        </ul>
+<c-layout active="public" title="Smart Energy Intelligence Platform">
+  <section class="landing-hero" id="platform">
+    <div class="hero-copy">
+      <p class="eyebrow"><span class="eyebrow-line"></span> Une vision connectée de l’énergie</p>
+      <h1>Comprendre l’énergie.<br><span>Relier les données.</span></h1>
+      <p class="hero-summary">Explorez votre écosystème énergétique grâce à un graphe de connaissance vivant, des données RDF traçables et une interface en langage naturel.</p>
+      <div class="hero-actions">
+        <a class="button button-primary button-large" href="{% url 'overview' %}">Accéder à l’espace de travail <i data-lucide="arrow-up-right"></i></a>
+        <a class="text-link" href="{% url 'graph' %}"><i data-lucide="network"></i> Explorer le graphe</a>
+      </div>
+      <div class="hero-source">Apache Jena Fuseki <span class="source-separator">·</span> Ontologie ENERGIE.rdf</div>
+    </div>
+    <div class="hero-visual">
+      <div class="visual-grid"></div>
+      <div class="ontology-card">
+        <div class="ontology-card-head"><span class="ontology-card-icon"><i data-lucide="boxes"></i></span><div><span>MODÈLE SÉMANTIQUE</span><strong>ENERGIE.rdf</strong></div><span class="ontology-live"><i data-lucide="circle-check"></i> Source</span></div>
+        <div class="ontology-table-head"><span>DOMAINE</span><span>CLASSES ONTOLOGIQUES</span></div>
+        {% for module in modules %}
+          <div class="ontology-row"><span>{{ module.root }}</span><span>{{ module.classes|length }} classes <i data-lucide="arrow-up-right"></i></span></div>
+        {% endfor %}
+        <div class="ontology-card-foot"><i data-lucide="database"></i><span>Modèle lu depuis l’ontologie du projet</span></div>
+      </div>
+      <div class="visual-caption"><span>ENERGY KNOWLEDGE SYSTEM</span><span>RDF · SPARQL · APACHE JENA</span></div>
+    </div>
+  </section>
+
+  <section class="landing-capabilities" id="capabilities">
+    <div class="section-intro">
+      <p class="eyebrow">Le système</p>
+      <h2>Les relations donnent du sens aux données.</h2>
+      <p>Un espace de travail conçu autour des ressources réelles de votre ontologie et de votre graphe RDF.</p>
+    </div>
+    <div class="capability-grid grid grid-cols-1 md:grid-cols-3">
+      <a class="capability-card" href="{% url 'overview' %}">
+        <span class="capability-icon"><i data-lucide="chart-no-axes-combined"></i></span><span class="card-index">01 / OBSERVER</span>
+        <h3>Vue d’ensemble</h3><p>Comptages et répartition par classe, calculés depuis le jeu Fuseki.</p><span class="card-arrow"><i data-lucide="arrow-up-right"></i></span>
       </a>
-    {% endfor %}
-    <a class="card" href="{% url 'questions' %}">
-      <h2>Questions</h2>
-      <p>Ask in French or English. The answer is a read-only SPARQL query.</p>
-    </a>
-    <a class="card" href="{% url 'entity_creation' %}">
-      <h2>Créer un individu</h2>
-      <p>Décrivez un individu en français, prévisualisez les triples et confirmez avant insertion.</p>
-    </a>
-  </div>
+      <a class="capability-card" href="{% url 'graph' %}">
+        <span class="capability-icon"><i data-lucide="network"></i></span><span class="card-index">02 / EXPLORER</span>
+        <h3>Graphe de connaissance</h3><p>Suivez les entités et les relations réellement présentes dans les données RDF.</p><span class="card-arrow"><i data-lucide="arrow-up-right"></i></span>
+      </a>
+      <a class="capability-card" href="{% url 'questions' %}">
+        <span class="capability-icon"><i data-lucide="messages-square"></i></span><span class="card-index">03 / INTERROGER</span>
+        <h3>Langage naturel</h3><p>Posez vos questions en français et obtenez des réponses fondées sur l’ontologie.</p><span class="card-arrow"><i data-lucide="arrow-up-right"></i></span>
+      </a>
+    </div>
+  </section>
+
+  <section class="landing-domain">
+    <div><p class="eyebrow">Modèle sémantique</p><h2>Une ontologie.<br><span>Huit domaines sémantiques.</span></h2></div>
+    <div class="domain-list">
+      {% for module in modules %}
+        <a href="{% url module.list_url_name %}"><span>{{ module.root }}</span><span class="domain-meta">{{ module.classes|length }} classes <i data-lucide="arrow-up-right"></i></span></a>
+      {% endfor %}
+    </div>
+  </section>
 </c-layout>

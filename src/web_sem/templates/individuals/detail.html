@@ -1,7 +1,7 @@
 <c-layout :active="module.key" :title="individual.local_name">
   <c-page-header :title="individual.local_name" :eyebrow="module.root">
-    <a class="button" href="{% url module.edit_url_name individual.local_name %}">Edit</a>
-    <a class="button button-danger" href="{% url module.delete_url_name individual.local_name %}">Delete</a>
+    <a class="button button-secondary" href="{% url module.edit_url_name individual.local_name %}"><i data-lucide="pencil"></i> Modifier</a>
+    <a class="button button-danger" href="{% url module.delete_url_name individual.local_name %}"><i data-lucide="trash-2"></i> Supprimer</a>
   </c-page-header>
 
   <dl class="facts">
@@ -14,7 +14,7 @@
       <dd>{{ individual.class_name }}</dd>
     </div>
     <div>
-      <dt>Class hierarchy</dt>
+      <dt>Hiérarchie des classes</dt>
       <dd>
         {% for name in individual.hierarchy %}
           {% if not forloop.first %}<span aria-hidden="true"> / </span>{% endif %}
@@ -23,5 +23,5 @@
       </dd>
     </div>
   </dl>
-  <p><a href="{% url module.list_url_name %}">Back to {{ module.root }}</a></p>
+  <p><a class="text-link" href="{% url module.list_url_name %}">Retour à {{ module.root }}</a></p>
 </c-layout>

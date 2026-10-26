@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 import os
 from pathlib import Path
 
-from django.urls import reverse_lazy
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -168,70 +167,14 @@ FUSEKI_UPDATE_URL = (
 
 
 UNFOLD = {
-    'SITE_TITLE': 'ENERGIE',
-    'SITE_HEADER': 'ENERGIE',
+    'SITE_TITLE': 'SmartGrid Administration',
+    'SITE_HEADER': 'SmartGrid',
     'SITE_SYMBOL': 'bolt',
     'SITE_URL': '/',
+    'SHOW_HISTORY': True,
+    'SHOW_VIEW_ON_SITE': False,
     'SIDEBAR': {
-        'show_search': False,
+        'show_search': True,
         'show_all_applications': True,
-        'navigation': [
-            {
-                'title': 'Ontology',
-                'separator': True,
-                'items': [
-                    {
-                        'title': 'Personne',
-                        'icon': 'person',
-                        'link': reverse_lazy('personne:list'),
-                    },
-                    {
-                        'title': 'SourceProduction',
-                        'icon': 'bolt',
-                        'link': reverse_lazy('source_production:list'),
-                    },
-                    {
-                        'title': 'Stockage',
-                        'icon': 'battery_full',
-                        'link': reverse_lazy('stockage:list'),
-                    },
-                    {
-                        'title': 'Zone',
-                        'icon': 'map',
-                        'link': reverse_lazy('zone:list'),
-                    },
-                    {
-                        'title': 'Questions',
-                        'icon': 'search',
-                        'link': reverse_lazy('questions'),
-                    },
-                    {
-                        'title': 'Créer un individu',
-                        'icon': 'add',
-                        'link': reverse_lazy('entity_creation'),
-                    },
-                    {
-                        'title': 'Consommateur',
-                        'icon': 'groups',
-                        'link': reverse_lazy('consommateur:list'),
-                    },
-                    {
-                        'title': 'Contrat',
-                        'icon': 'description',
-                        'link': reverse_lazy('contrat:list'),
-                    },
-                    {
-                        'title': 'Infrastructure',
-                        'icon': 'router',
-                        'link': reverse_lazy('infrastructure:list'),
-                    },
-                    {
-                        'title': 'Transport',
-                        'icon': 'directions',
-                        'link': reverse_lazy('transport:list'),
-                    },
-                ],
-            },
-        ],
     },
 }

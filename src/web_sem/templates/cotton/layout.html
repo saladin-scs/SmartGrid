@@ -1,23 +1,61 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% if title %}{{ title }} · {% endif %}ENERGIE</title>
+  <meta name="theme-color" content="#07110f">
+  <title>{% if title %}{{ title }} · {% endif %}SmartGrid</title>
+  <link rel="icon" href="{% static 'web_sem/favicon.svg' %}" type="image/svg+xml">
+  <link rel="stylesheet" href="{% static 'web_sem/app.css' %}">
   <link rel="stylesheet" href="{% static 'web_sem/site.css' %}">
 </head>
-<body>
-  <c-nav active="{{ active }}"></c-nav>
-  <main class="shell">
-    {% if messages %}
-      <ul class="messages">
-        {% for message in messages %}
-          <li class="message message-{{ message.tags }}">{{ message }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
-    {{ slot }}
-  </main>
+<body class="{% if active == 'public' %}public-body{% else %}app-body{% endif %}">
+  <a class="skip-link" href="#main-content">Aller au contenu</a>
+  {% if active == "public" %}
+    <div class="public-shell">
+      <header class="public-header">
+        <a class="brand" href="{% url 'home' %}" aria-label="SmartGrid, accueil">
+          <span class="brand-mark"><i data-lucide="zap"></i></span>
+          <span>smart<span class="brand-accent">grid</span></span>
+        </a>
+        <nav class="public-nav" aria-label="Navigation principale">
+          <a href="#platform">La plateforme</a>
+          <a href="#capabilities">Capacités</a>
+          <a class="button button-primary" href="{% url 'overview' %}">Ouvrir l’espace <i data-lucide="arrow-up-right"></i></a>
+        </nav>
+      </header>
+      <main id="main-content" class="public-content">{{ slot }}</main>
+      <footer class="public-footer"><span>SMARTGRID · WEB SÉMANTIQUE</span><a href="{% url 'admin:index' %}">Administration Django</a></footer>
+    </div>
+  {% else %}
+    <div class="workspace-shell" id="workspace-shell">
+      <button class="sidebar-backdrop" id="sidebar-backdrop" type="button" aria-label="Fermer le menu"></button>
+      <c-nav :active="active"></c-nav>
+      <div class="workspace-main">
+        <header class="workspace-topbar">
+          <button class="icon-button sidebar-toggle" id="sidebar-toggle" type="button" aria-label="Réduire le menu" aria-expanded="true" aria-controls="workspace-sidebar">
+            <i data-lucide="panel-left-close"></i>
+          </button>
+          <div class="workspace-context">
+            <span class="context-mark"><i data-lucide="activity"></i></span>
+            <span>Energy intelligence <span class="context-divider">/</span> <strong>{% if title %}{{ title }}{% else %}Espace de travail{% endif %}</strong></span>
+          </div>
+          <a class="topbar-admin" href="{% url 'admin:index' %}"><i data-lucide="settings"></i><span>Administration</span></a>
+        </header>
+        <main id="main-content" class="workspace-content">
+          {% if messages %}
+            <ul class="messages">
+              {% for message in messages %}
+                <li class="message message-{{ message.tags }}">{{ message }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+          {{ slot }}
+        </main>
+      </div>
+    </div>
+  {% endif %}
+  <script type="module" src="{% static 'web_sem/build/app.js' %}"></script>
 </body>
 </html>
