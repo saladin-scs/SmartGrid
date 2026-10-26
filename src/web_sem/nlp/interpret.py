@@ -11,8 +11,8 @@ import unicodedata
 from dataclasses import dataclass
 
 from web_sem.nlp.aliases import Alias, alias_index, cue_index
-from web_sem.nlp.catalog import is_ancestor, is_root, locate, subtree_names
-from web_sem.nlp.normalize import find_phrases, normalized_question
+from web_sem.nlp.catalog import all_class_names, is_ancestor, is_root, locate, subtree_names
+from web_sem.nlp.normalize import _CLITICS, find_phrases, normalized_question
 from web_sem.ontology import (
     LOCAL_NAME_RE,
     MAX_LOCAL_NAME,
@@ -152,8 +152,10 @@ def interpret(question: str) -> Plan:
     if not normalized:
         return Plan(language, clarification=say(language, "empty"))
 
-    cues = _cues(normalized)
     hits = _classes(normalized)
+    if not hits:
+        hits = _fallback_classes(normalized)
+    cues = _cues(normalized)
     language = _language(question, cues, hits)
     strong = [kind for kind in _STRONG if cues.get(kind)]
     if len(strong) > 1:
@@ -243,6 +245,28 @@ def _classes(normalized: str) -> list[Alias]:
         seen.add(hit.local_name)
         kept.append(hit)
     return kept
+
+
+def _fallback_classes(normalized: str) -> list[Alias]:
+    """Match individual content words against ontology class names.
+
+    Used when no controlled alias phrase matches the question exactly.
+    Returns aliases whose normalized phrase matches any word in the question.
+    """
+    words = [w for w in normalized.split() if w and w not in _CLITICS and w not in _ARTICLES]
+    if not words:
+        return []
+    aliases = alias_index()
+    hits: list[Alias] = []
+    seen: set[str] = set()
+    for word in words:
+        for alias in aliases:
+            if alias.local_name in seen:
+                continue
+            if alias.phrase == word or word in alias.phrase.split():
+                hits.append(alias)
+                seen.add(alias.local_name)
+    return hits
 
 
 def _cues(normalized: str) -> dict[str, set[str]]:

@@ -1,6 +1,7 @@
 {
   "eolsfax": "SiteInstallation",
-  "SanaConso": "Consommateur",
-  "infra2": "Infrastructure",
-  "SaifPersonne": "Personne"
+  "basse_tension_tunis": "LigneBasseTensionAerienne",
+  "sana": "Consommateur",
+  "source_de_electrique_tunis": "StockageElectrique",
+  "source_tatouine": "CentraleSolaireThermique"
 }
