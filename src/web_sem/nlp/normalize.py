@@ -67,11 +67,14 @@ def _token_texts(text: str) -> list[str]:
     tokenizer = _french_tokenizer()
     if tokenizer is None:
         return _TOKEN.findall(text)
-    return [
-        token.text
-        for token in tokenizer(text)
-        if not token.is_space and not token.is_punct
-    ]
+    try:
+        return [
+            token.text
+            for token in tokenizer(text)
+            if not token.is_space and not token.is_punct
+        ]
+    except OverflowError:
+        return _TOKEN.findall(text)
 
 
 def _french_tokenizer():
