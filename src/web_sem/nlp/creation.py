@@ -13,7 +13,7 @@ from rdflib import Literal, URIRef
 from rdflib.namespace import RDF, XSD
 from rdflib.term import Identifier
 
-from web_sem.nlp.aliases import alias_index
+from web_sem.nlp.aliases import SUBJECTS, alias_index
 from web_sem.nlp.catalog import all_class_names, is_ancestor, locate
 from web_sem.nlp.interpret import MAX_QUESTION
 from web_sem.nlp.normalize import normalized_question
@@ -33,11 +33,34 @@ from web_sem.ontology import (
 if TYPE_CHECKING:
     from web_sem.repository import IndividualRepository
 
-_CREATE_ACTIONS = frozenset({"creer", "ajouter", "enregistrer"})
+_CREATE_ACTIONS = frozenset(
+    {
+        "creer",
+        "cree",
+        "creez",
+        "ajouter",
+        "ajoute",
+        "ajoutez",
+        "enregistrer",
+        "enregistre",
+        "enregistrez",
+        "ajout",
+        "creation",
+    }
+)
+_CLASS_STOPWORDS = frozenset(
+    {
+        "a", "au", "aux", "avec", "d", "dans", "de", "des", "du",
+        "et", "la", "le", "les", "un", "une",
+    }
+)
 _NAME_CUE = re.compile(
-    r"\b(?:appel[ée]e?|nomm[ée]e?)\s+"
+    r"\b(?:(?:appel[ée]e?|nomm[ée]e?)|s['’]appelle|ayant\s+pour\s+nom|de\s+nom|nom)\s+"
+    r"(?!de\s+(?:la\s+)?(?:zone|personne)\b)"
     r"(?P<name>[\wÀ-ÿ][\wÀ-ÿ -]*?)"
-    r"(?=\s+(?:avec\b|et\b)|[,;.!?]|$)",
+    r"(?=\s+(?:avec\b|et\b|dans\s+la\s+(?:région|region|zone|ville)\b|"
+    r"situ[ée]e?\s+dans\b|localis[ée]e?\s+dans\b|se\s+trouve\s+dans\b|"
+    r"région\b|region\b|puissance\b)|[,;.!?]|$)",
     re.IGNORECASE,
 )
 _PROPERTY_ASSIGNMENT = re.compile(
@@ -52,6 +75,29 @@ _DATATYPE_VALUES = {
     str(XSD.integer),
     str(XSD.decimal),
     str(XSD.boolean),
+}
+_NATURAL_PROPERTY_ALIASES = {
+    "nomZone": ("nom de la zone", "nom zone"),
+    "region": ("dans la région", "dans la region", "région", "region"),
+    "puissanceInstalleeMW": ("puissance installée", "puissance installee"),
+    "estSitueDans": (
+        "situé dans la zone",
+        "située dans la zone",
+        "situé dans une zone",
+        "située dans une zone",
+        "localisé dans la zone",
+        "localisée dans la zone",
+        "se trouve dans la zone",
+        "situé dans",
+        "située dans",
+        "localisé dans",
+        "localisée dans",
+        "se trouve dans",
+        "dans la zone",
+        "dans une zone",
+        "dans la ville",
+        "dans une ville",
+    ),
 }
 
 
@@ -101,12 +147,21 @@ def prepare_creation(
         raise CreationError("Précisez une action, par exemple « créer » ou « ajouter ».")
 
     name_matches = list(_NAME_CUE.finditer(description))
-    if not name_matches:
-        raise CreationError("Indiquez le nom avec « appelé(e) … » ou « nommé(e) … ».")
-    if len(name_matches) != 1:
+    if len(name_matches) > 1:
         raise CreationError("La description contient plusieurs noms possibles.")
-    name_match = name_matches[0]
-    local_name = _local_name(name_match.group("name"))
+    name_match = name_matches[0] if name_matches else None
+    property_values = _extract_property_values(description)
+    class_text = description
+    if name_match:
+        class_text = class_text[: name_match.start()] + class_text[name_match.end() :]
+    class_text = _PROPERTY_ASSIGNMENT.sub(" ", class_text)
+    class_text = _strip_natural_property_clauses(class_text)
+    class_name = _resolve_class(class_text)
+    if name_match:
+        name_value = name_match.group("name")
+    else:
+        name_value = _infer_name(class_text, class_name)
+    local_name = _local_name(name_value)
     try:
         subject = URIRef(individual_iri(local_name))
     except ValueError as exc:
@@ -119,10 +174,6 @@ def prepare_creation(
     if repository.exists(local_name):
         raise CreationError(f"L’individu « {local_name} » existe déjà.")
 
-    class_text = description[: name_match.start()] + description[name_match.end() :]
-    property_values = _extract_property_values(description)
-    class_text = _PROPERTY_ASSIGNMENT.sub(" ", class_text)
-    class_name = _resolve_class(class_text)
     found = locate(class_name)
     if found is None:
         raise CreationError("La classe sélectionnée n’existe pas dans ENERGIE.rdf.")
@@ -206,20 +257,29 @@ def _local_name(value: str) -> str:
 
 
 def _resolve_class(class_text: str) -> str:
-    words = normalized_question(class_text).split()
+    words = [
+        word for word in normalized_question(class_text).split()
+        if word not in _CLASS_STOPWORDS
+    ]
     scores: dict[str, int] = {}
     forms: list[tuple[str, tuple[str, ...]]] = []
     for local_name in all_class_names():
-        forms.append((local_name, tuple(normalized_question(display_name(local_name)).split())))
+        phrase = tuple(
+            word for word in normalized_question(display_name(local_name)).split()
+            if word not in _CLASS_STOPWORDS
+        )
+        forms.append((local_name, phrase))
     for alias in alias_index():
-        forms.append((alias.local_name, tuple(alias.phrase.split())))
+        phrase = tuple(word for word in alias.phrase.split() if word not in _CLASS_STOPWORDS)
+        forms.append((alias.local_name, phrase))
 
     for local_name, phrase in forms:
         if not phrase:
             continue
         width = _longest_common_run(words, phrase)
         if width:
-            scores[local_name] = max(scores.get(local_name, 0), width)
+            score = width * 1000 - len(phrase)
+            scores[local_name] = max(scores.get(local_name, 0), score)
     if not scores:
         raise CreationError("Aucune classe de l’ontologie ne correspond. Reformulez la description.")
 
@@ -264,6 +324,7 @@ def _extract_property_values(description: str) -> dict[str, str]:
             known.setdefault(key, set()).add(item.local_name)
 
     values: dict[str, str] = {}
+    consumed: list[tuple[int, int]] = []
     for match in _PROPERTY_ASSIGNMENT.finditer(description):
         raw_key = re.sub(r"^avec\s+", "", match.group("key").strip(), flags=re.IGNORECASE)
         key = normalized_question(raw_key)
@@ -278,7 +339,101 @@ def _extract_property_values(description: str) -> dict[str, str]:
         if not value:
             raise CreationError(f"Indiquez une valeur pour « {display_name(local_name)} ».")
         values[local_name] = value
+        consumed.append(match.span())
+
+    natural_matches: list[tuple[int, int, str, str]] = []
+    aliases = _natural_property_patterns()
+    for local_name, pattern in aliases:
+        for match in pattern.finditer(description):
+            if any(start <= match.start() < end for start, end in consumed):
+                continue
+            natural_matches.append((match.start(), match.end(), local_name, match.group()))
+    natural_matches.sort(key=lambda item: (item[0], -(item[1] - item[0])))
+
+    accepted: list[tuple[int, int, str, str]] = []
+    for match in natural_matches:
+        if accepted and match[0] < accepted[-1][1]:
+            continue
+        accepted.append(match)
+    for index, (start, end, local_name, _phrase) in enumerate(accepted):
+        if local_name in values:
+            raise CreationError(f"La propriété « {display_name(local_name)} » est indiquée plusieurs fois.")
+        next_start = accepted[index + 1][0] if index + 1 < len(accepted) else len(description)
+        raw_value = description[end:next_start]
+        raw_value = re.sub(r"^\s*(?:(?:est|de|:|=)\s*)+", "", raw_value, flags=re.IGNORECASE)
+        raw_value = re.sub(r"^\s*(?:et|avec)\s+", "", raw_value, flags=re.IGNORECASE)
+        raw_value = re.split(r"[,;.!?]", raw_value, maxsplit=1)[0].strip()
+        if not raw_value:
+            raise CreationError(f"Indiquez une valeur pour « {display_name(local_name)} ».")
+        values[local_name] = raw_value.strip(" «»\"'`")
     return values
+
+
+def _natural_property_patterns() -> list[tuple[str, re.Pattern[str]]]:
+    patterns = []
+    for local_name, phrases in _NATURAL_PROPERTY_ALIASES.items():
+        for phrase in sorted(phrases, key=len, reverse=True):
+            expression = r"(?<!\w)" + re.escape(phrase).replace(r"\ ", r"\s+") + r"(?!\w)"
+            patterns.append((local_name, re.compile(expression, re.IGNORECASE)))
+    return patterns
+
+
+def _strip_natural_property_clauses(description: str) -> str:
+    matches = sorted(
+        (match for _name, pattern in _natural_property_patterns() for match in pattern.finditer(description)),
+        key=lambda match: (match.start(), -(match.end() - match.start())),
+    )
+    selected = []
+    for match in matches:
+        if selected and match.start() < selected[-1].end():
+            continue
+        selected.append(match)
+
+    spans: list[tuple[int, int]] = []
+    for index, match in enumerate(selected):
+        end = selected[index + 1].start() if index + 1 < len(selected) else len(description)
+        delimiter = re.search(r"[,;.!?]|\bet\b", description[match.end():end], re.IGNORECASE)
+        if delimiter:
+            end = match.end() + delimiter.start()
+        spans.append((match.start(), end))
+    for start, end in reversed(spans):
+        description = description[:start] + " " + description[end:]
+    return description
+
+
+def _infer_name(class_text: str, class_name: str) -> str:
+    phrases = {
+        display_name(class_name),
+        class_name,
+        *SUBJECTS.get("fr", {}).get(class_name, ()),
+    }
+    matches: list[re.Match[str]] = []
+    for phrase in phrases:
+        expression = re.escape(phrase).replace(r"\ ", r"\s+")
+        match = re.search(r"(?<!\w)" + expression + r"(?!\w)", class_text, re.IGNORECASE)
+        if match:
+            matches.append(match)
+    class_match = (
+        min(matches, key=lambda match: (match.start(), -(match.end() - match.start())))
+        if matches
+        else None
+    )
+    if class_match is None:
+        raise CreationError("Indiquez le nom de l’individu, par exemple « Ville Sfax ». ")
+
+    tail = class_text[class_match.end():]
+    tail = re.split(
+        r"(?i)\b(?:avec|et|dans\s+(?:la\s+)?(?:r[eé]gion|zone|ville)|"
+        r"r[eé]gion|puissance\s+install[eé]e|"
+        r"situ[eé]\s+dans|localis[eé]\s+dans|se\s+trouve\s+dans)\b|[,;.!?]",
+        tail,
+        maxsplit=1,
+    )[0]
+    tail = re.sub(r"^\s*(?:de\s+type|de|du|des|une?|l['’])\s+", "", tail, flags=re.IGNORECASE)
+    candidate = tail.strip()
+    if not candidate:
+        raise CreationError("Indiquez le nom de l’individu, par exemple « Ville Sfax ». ")
+    return candidate
 
 
 def _validate_domain(
