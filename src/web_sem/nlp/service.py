@@ -3,23 +3,33 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from urllib.parse import quote
 
 from django.urls import reverse
 
 from web_sem.nlp.catalog import locate, subtree_names
 from web_sem.nlp.interpret import (
+    COUNT_BY_ZONE,
     COUNT_INDIVIDUALS,
     GET_DETAILS,
     LIST_TYPES,
     MAX_QUESTION,
+    ZONE_INTENTS,
     Plan,
     describe,
     interpret,
     say,
 )
-from web_sem.nlp.sparql import RESULT_LIMIT, QueryRejected, build_query, validate_select
+from web_sem.nlp.normalize import normalized_question
+from web_sem.nlp.sparql import (
+    RESULT_LIMIT,
+    QueryRejected,
+    build_properties_query,
+    build_query,
+    build_zone_lookup,
+    validate_select,
+)
 from web_sem.ontology import LOCAL_NAME_RE, MAX_LOCAL_NAME, ONTOLOGY_NS, display_name
 from web_sem.sparql import SparqlService, SparqlServiceError
 
@@ -42,6 +52,11 @@ SAMPLE_QUESTIONS = (
     "Combien de contrats existe-t-il ?",
     "Liste les contrats de type AbonnementResidentiel.",
     "Quels types de contrats sont disponibles ?",
+    "Quels techniciens travaillent à Sfax ?",
+    "Combien de personnes sont affectées à Tozeur ?",
+    "Quels sites appartiennent à Tozeur ?",
+    "Liste les opérateurs.",
+    "Liste les villes.",
     "How many nuclear plants are there?",
 )
 
@@ -89,6 +104,31 @@ class QuestionAnswering:
         if plan.clarification:
             return Answer(question=text, language=plan.language, clarification=plan.clarification)
 
+        service = self._service if self._service is not None else SparqlService(timeout=NLP_TIMEOUT)
+        if plan.intent in ZONE_INTENTS:
+            try:
+                plan = _resolve_zone(plan, service)
+            except SparqlServiceError:
+                logger.exception("Fuseki could not list the zones")
+                return Answer(
+                    question=text,
+                    language=plan.language,
+                    intent=plan.intent,
+                    error=say(plan.language, "store"),
+                    http_status=503,
+                )
+            except (KeyError, TypeError, ValueError):
+                logger.exception("Fuseki returned an unexpected zone list")
+                return Answer(
+                    question=text,
+                    language=plan.language,
+                    intent=plan.intent,
+                    error=say(plan.language, "bad_result"),
+                    http_status=502,
+                )
+            if plan.clarification:
+                return Answer(question=text, language=plan.language, clarification=plan.clarification)
+
         try:
             query = build_query(plan)
             validate_select(query)
@@ -103,7 +143,6 @@ class QuestionAnswering:
             )
 
         explanation = describe(plan, limit=RESULT_LIMIT)
-        service = self._service if self._service is not None else SparqlService(timeout=NLP_TIMEOUT)
         try:
             payload = service.select(query)
         except SparqlServiceError:
@@ -119,7 +158,10 @@ class QuestionAnswering:
             )
 
         try:
-            return _present(text, plan, query, explanation, payload)
+            answer = _present(text, plan, query, explanation, payload)
+            if plan.intent == GET_DETAILS and answer.rows:
+                answer = replace(answer, rows=answer.rows + _property_rows(plan, service))
+            return answer
         except (KeyError, TypeError, ValueError):
             logger.exception("Fuseki returned an unexpected NLP result")
             return Answer(
@@ -146,7 +188,7 @@ def _present(question: str, plan: Plan, query: str, explanation: str, payload: d
     count = None
     rows: tuple[ResultRow, ...] = ()
     empty = ""
-    if plan.intent == COUNT_INDIVIDUALS:
+    if plan.intent in {COUNT_INDIVIDUALS, COUNT_BY_ZONE}:
         count = _count(bindings)
     elif plan.intent == LIST_TYPES:
         rows = tuple(_class_rows(plan, bindings))
@@ -156,6 +198,12 @@ def _present(question: str, plan: Plan, query: str, explanation: str, payload: d
         rows = tuple(_individual_rows(bindings))
         if not rows:
             empty = say(plan.language, "empty_details", name=plan.individual_name)
+    elif plan.intent in ZONE_INTENTS:
+        rows = tuple(_individual_rows(bindings))
+        if not rows:
+            empty = say(
+                plan.language, "empty_by_zone", name=display_name(plan.class_name), zone=plan.zone_name
+            )
     else:  # LIST_INDIVIDUALS, FILTER_BY_CLASS: classes first, then individuals
         rows = tuple(_list_rows(plan, bindings)) + tuple(_individual_rows(bindings))
         if not rows:
@@ -171,6 +219,68 @@ def _present(question: str, plan: Plan, query: str, explanation: str, payload: d
         count=count,
         empty_message=empty,
     )
+
+
+def _resolve_zone(plan: Plan, service) -> Plan:
+    """Turn the words after "à" into the local name of one Zone individual.
+
+    Zones come from Fuseki (local name and nomZone). The question's text is only
+    compared to them here, it is never put in a query.
+    """
+    query = build_zone_lookup()
+    validate_select(query)
+    payload = service.select(query)
+    wanted = frozenset(normalized_question(plan.zone_text).split()) - _FILLER
+    candidates: dict[str, list[frozenset[str]]] = {}
+    for binding in payload["results"]["bindings"]:
+        name = _local(_value(binding, "zone"))
+        if not name:
+            continue
+        spellings = candidates.setdefault(name, [])
+        for text in (name, _value(binding, "nom")):
+            words = frozenset(normalized_question(text).split()) - _FILLER
+            if words:
+                spellings.append(words)
+
+    # A zone is known by its local name and by its nomZone. The whole phrase must
+    # equal one of them ("Sfax" = Ville_Sfax); failing that, the phrase may be a
+    # part of a longer name ("Sfax" in "Stockage de Sfax").
+    exact = [name for name, spellings in candidates.items() if wanted in spellings]
+    partial = [
+        name for name, spellings in candidates.items() if any(wanted and wanted <= words for words in spellings)
+    ]
+    found = exact or sorted(partial)
+    if not found:
+        return replace(plan, clarification=say(plan.language, "zone_unknown", zone=plan.zone_text))
+    if len(found) > 1:
+        return replace(
+            plan,
+            clarification=say(plan.language, "zone_several", zone=plan.zone_text, names=", ".join(found[:6])),
+        )
+    return replace(plan, zone_name=found[0])
+
+
+_FILLER = frozenset({"de", "du", "des", "la", "le", "les", "l", "d", "ville", "zone", "region", "site"})
+
+
+def _property_rows(plan: Plan, service) -> tuple[ResultRow, ...]:
+    """Name, matricule, links... of the individual; best effort, details still work without."""
+    try:
+        query = build_properties_query(plan.individual_name)
+        validate_select(query)
+        payload = service.select(query)
+        rows = []
+        for binding in payload["results"]["bindings"]:
+            name = _local(_value(binding, "property"))
+            raw = _value(binding, "value")
+            if not name or not raw:
+                continue
+            value = _local(raw) or raw
+            rows.append(ResultRow(title=name, subtitle=value, meta="propriété"))
+        return tuple(rows)
+    except (SparqlServiceError, QueryRejected, KeyError, TypeError, ValueError):
+        logger.exception("Could not read the properties of %s", plan.individual_name)
+        return ()
 
 
 def _count(bindings: list) -> int:

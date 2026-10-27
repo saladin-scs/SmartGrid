@@ -15,16 +15,18 @@ from rdflib.plugins.sparql.parser import parseQuery
 from rdflib.plugins.sparql.parserutils import CompValue
 from rdflib.term import Variable
 
-from web_sem.nlp.catalog import all_class_names, subtree_names
+from web_sem.nlp.catalog import all_class_names, relation_properties, subtree_names
 from web_sem.nlp.interpret import (
+    COUNT_BY_ZONE,
     COUNT_INDIVIDUALS,
     FILTER_BY_CLASS,
     GET_DETAILS,
+    LIST_BY_ZONE,
     LIST_INDIVIDUALS,
     LIST_TYPES,
     Plan,
 )
-from web_sem.ontology import ONTOLOGY_NS, class_iri, individual_iri
+from web_sem.ontology import ONTOLOGY_NS, class_iri, get_property, individual_iri
 from web_sem.sparql.service import _top_level_forms
 
 RESULT_LIMIT = 100
@@ -36,6 +38,7 @@ _ALLOWED_NODES = frozenset(
         "Project",
         "OrderBy",
         "Filter",
+        "TrueFilter",  # what rdflib adds for an OPTIONAL without a FILTER
         "Builtin_STRSTARTS",
         "Builtin_STR",
         "Builtin_LCASE",
@@ -76,7 +79,64 @@ def build_query(plan: Plan) -> str:
         return _select_classes(subtree_names(plan.class_name))
     if plan.intent == GET_DETAILS:
         return _select_details(plan.individual_name)
+    if plan.intent in {LIST_BY_ZONE, COUNT_BY_ZONE}:
+        return _by_zone(plan, count=plan.intent == COUNT_BY_ZONE)
     raise QueryRejected("Unsupported intent.")
+
+
+def build_zone_lookup() -> str:
+    """Every Zone individual with its optional nomZone, to resolve a name in a question."""
+    values = _class_values(subtree_names("Zone"))
+    namespace = _namespace_literal()
+    return (
+        "SELECT ?zone ?nom\n"
+        "WHERE {\n"
+        f"  VALUES ?type {{ {values} }}\n"
+        "  ?zone a ?type .\n"
+        f"  FILTER(STRSTARTS(STR(?zone), {namespace}))\n"
+        f"  OPTIONAL {{ ?zone {_property_term('nomZone')} ?nom . }}\n"
+        "}\n"
+        f"LIMIT {RESULT_LIMIT}\n"
+    )
+
+
+def build_properties_query(local_name: str) -> str:
+    """Ontology properties (name, matricule, links...) of one individual."""
+    individual = _individual_term(local_name)
+    namespace = _namespace_literal()
+    return (
+        "SELECT ?property ?value\n"
+        "WHERE {\n"
+        f"  BIND({individual} AS ?individual)\n"
+        "  ?individual ?property ?value .\n"
+        f"  FILTER(STRSTARTS(STR(?property), {namespace}))\n"
+        "}\n"
+        "ORDER BY STR(?property)\n"
+        f"LIMIT {RESULT_LIMIT}\n"
+    )
+
+
+def _by_zone(plan: Plan, *, count: bool) -> str:
+    properties = relation_properties(plan.class_name)
+    if not properties or not plan.zone_name:
+        raise QueryRejected("The question needs a class with a zone relation and a zone.")
+    types = _class_values(subtree_names(plan.class_name))
+    links = " ".join(_property_term(name) for name in properties)
+    zone = _individual_term(plan.zone_name)
+    namespace = _namespace_literal()
+    head = "SELECT (COUNT(DISTINCT ?individual) AS ?count)" if count else "SELECT ?type ?individual"
+    tail = "LIMIT 1\n" if count else f"ORDER BY STR(?type) LCASE(STR(?individual))\nLIMIT {RESULT_LIMIT}\n"
+    return (
+        f"{head}\n"
+        "WHERE {\n"
+        f"  VALUES ?type {{ {types} }}\n"
+        f"  VALUES ?link {{ {links} }}\n"
+        f"  ?individual a ?type ;\n"
+        f"              ?link {zone} .\n"
+        f"  FILTER(STRSTARTS(STR(?individual), {namespace}))\n"
+        "}\n"
+        f"{tail}"
+    )
 
 
 def validate_select(query: str) -> None:
@@ -176,6 +236,16 @@ def _class_term(local_name: str) -> str:
     rendered = URIRef(iri).n3()
     if rendered != f"<{iri}>":
         raise QueryRejected("Class IRI could not be serialized safely.")
+    return rendered
+
+
+def _property_term(local_name: str) -> str:
+    prop = get_property(local_name)
+    if prop is None:
+        raise QueryRejected("Unknown ontology property.")
+    rendered = URIRef(prop.iri).n3()
+    if rendered != f"<{prop.iri}>":
+        raise QueryRejected("Property IRI could not be serialized safely.")
     return rendered
 
 

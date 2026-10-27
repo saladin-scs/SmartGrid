@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from dataclasses import replace
 
 from django.contrib import messages
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
@@ -106,11 +107,15 @@ def individual_list(request: HttpRequest, search_form_class: type[IndividualSear
     search_form = search_form_class(request.GET)
     individuals = []
     if search_form.is_valid():
-        individuals = IndividualRepository().list_individuals(
+        repository = IndividualRepository()
+        individuals = repository.list_individuals(
             module,
             query=search_form.cleaned_data["q"],
             class_name=search_form.cleaned_data["rdf_type"],
         )
+        if module.key in WITH_SUMMARY:
+            summary = repository.property_summary()
+            individuals = [replace(item, properties=summary.get(item.local_name, ())) for item in individuals]
     return render(
         request,
         "individuals/list.html",
@@ -119,8 +124,26 @@ def individual_list(request: HttpRequest, search_form_class: type[IndividualSear
             "active": module.key,
             "search_form": search_form,
             "individuals": individuals,
+            "class_counts": _class_counts(module, individuals),
+            "with_summary": module.key in WITH_SUMMARY,
         },
     )
+
+
+# Modules whose list shows a name and a zone next to each individual.
+WITH_SUMMARY = frozenset({"personne", "zone"})
+
+
+def _class_counts(module, individuals) -> list[dict]:
+    """How many listed individuals each class has, in ontology order."""
+    counts: dict[str, int] = {}
+    for item in individuals:
+        counts[item.class_name] = counts.get(item.class_name, 0) + 1
+    return [
+        {"name": ontology_class.local_name, "label": ontology_class.display_name, "count": counts[ontology_class.local_name]}
+        for ontology_class in module.classes
+        if ontology_class.local_name in counts
+    ]
 
 
 @rdf_page

@@ -37,6 +37,19 @@ SUBJECTS: dict[str, dict[str, list[str]]] = {
         "PosteTransformation": ["poste de transformation"],
         "LigneTransport": ["ligne de transport"],
         "Infrastructure": ["infrastructure"],
+        # Personne
+        "Personne": ["personnel", "employé"],
+        "ClientAbonne": ["client", "abonné", "client abonné"],
+        "TechnicienMaintenance": ["technicien de maintenance"],
+        "TechnicienLigne": ["technicien de ligne"],
+        "TechnicienPoste": ["technicien de poste"],
+        "TechnicienExploitation": ["technicien d'exploitation", "technicien de l'exploitation"],
+        # Zone
+        "SiteInstallation": ["site", "site d'installation"],
+        "SiteProduction": ["site de production"],
+        "SiteStockage": ["site de stockage"],
+        "SiteSolaire": ["site solaire", "parc solaire"],
+        "SiteEolien": ["site éolien", "parc éolien"],
     },
     "en": {
         "Consommateur": ["consumer"],

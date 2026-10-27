@@ -11,7 +11,14 @@ import unicodedata
 from dataclasses import dataclass
 
 from web_sem.nlp.aliases import Alias, alias_index, cue_index
-from web_sem.nlp.catalog import all_class_names, is_ancestor, is_root, locate, subtree_names
+from web_sem.nlp.catalog import (
+    all_class_names,
+    is_ancestor,
+    is_root,
+    locate,
+    relation_properties,
+    subtree_names,
+)
 from web_sem.nlp.normalize import _CLITICS, find_phrases, normalized_question
 from web_sem.ontology import (
     LOCAL_NAME_RE,
@@ -26,6 +33,9 @@ FILTER_BY_CLASS = "FILTER_BY_CLASS"
 GET_DETAILS = "GET_DETAILS"
 COUNT_INDIVIDUALS = "COUNT_INDIVIDUALS"
 LIST_TYPES = "LIST_TYPES"
+LIST_BY_ZONE = "LIST_BY_ZONE"
+COUNT_BY_ZONE = "COUNT_BY_ZONE"
+ZONE_INTENTS = frozenset({LIST_BY_ZONE, COUNT_BY_ZONE})
 
 MAX_QUESTION = 400
 _STRONG = ("count", "types", "details")
@@ -39,16 +49,21 @@ _DETAIL_RE = re.compile(
     r"(?is)\b(?:d[eé]tails?|fiche|informations?|details?)\s+"
     r"(?:(?:de|du|des|d['’]|of|for|about|sur)\s+)?(\S.*?)\s*$"
 )
+# "... à Sfax", "... dans la ville de Tozeur": the words after the preposition name a zone.
+_ZONE_RE = re.compile(
+    r"(?is)\b(?:à|au|aux|dans|en)\s+(?:(?:la|le|les|l['’])\s*)?(\S.*?)\s*[?.!]*\s*$"
+)
 _CLASS_FILTER_RE = re.compile(r"(?is)\b(?:de\s+type|type)\s+([A-Za-z][A-Za-z0-9_]*)\s*[.?!]*\s*$")
 
 _TEXT: dict[str, dict[str, str]] = {
     "fr": {
         "injection": "Cette question contient une syntaxe SPARQL. Reformulez-la en langage naturel.",
-        "empty": "Saisissez une question sur la production, le stockage, les consommateurs ou les contrats.",
+        "empty": "Saisissez une question sur la production, le stockage, les consommateurs, les contrats, les personnes ou les zones.",
         "unsupported": (
             "Je ne reconnais pas cette question pour les sources de production, le stockage, "
-            "les consommateurs ou les contrats. "
-            "Par exemple : « Quelles sources de production existent ? »."
+            "les consommateurs, les contrats, les personnes ou les zones. "
+            "Par exemple : « Quelles sources de production existent ? » "
+            "ou « Quels techniciens travaillent à Sfax ? »."
         ),
         "several": "Plusieurs classes correspondent : {names}. Précisez une seule classe.",
         "mixed": "La question mélange plusieurs demandes. Choisissez une liste, un compte, un détail ou les types.",
@@ -72,6 +87,14 @@ _TEXT: dict[str, dict[str, str]] = {
             "dans le jeu de données."
         ),
         "empty_types": "La requête n'a retourné aucune classe.",
+        "zone_unknown": "Je ne trouve aucune zone nommée « {zone} » dans le jeu de données.",
+        "zone_several": "Plusieurs zones correspondent à « {zone} » : {names}. Précisez le nom.",
+        "by_zone": (
+            "Individus de type {name} ou de ses sous-classes reliés à la zone {zone} "
+            "par {properties}. Au plus {limit} lignes."
+        ),
+        "count_by_zone": "Nombre d'individus de type {name} (sous-classes comprises) reliés à la zone {zone}.",
+        "empty_by_zone": "Aucun individu de type {name} n'est relié à la zone {zone}.",
         "list_leaf": "Individus dont le type asserté est {name}.",
         "list_tree": (
             "Individus dont le type asserté est {name} ou l'une de ses {count} sous-classes. "
@@ -109,6 +132,14 @@ _TEXT: dict[str, dict[str, str]] = {
         "empty_list": "No individual of {name} is in the energy dataset.",
         "empty_details": "No individual named {name} has a supported type in the dataset.",
         "empty_types": "The query returned no classes.",
+        "zone_unknown": "I can't find a zone named \"{zone}\" in the dataset.",
+        "zone_several": "Several zones match \"{zone}\": {names}. Give the exact name.",
+        "by_zone": (
+            "Individuals of type {name} (or subclasses) linked to the zone {zone} "
+            "through {properties}. At most {limit} rows."
+        ),
+        "count_by_zone": "Number of individuals of type {name} (including subclasses) linked to the zone {zone}.",
+        "empty_by_zone": "No individual of type {name} is linked to the zone {zone}.",
         "list_leaf": "Individuals whose asserted type is {name}.",
         "list_tree": (
             "Individuals whose asserted type is {name} or one of its {count} subclasses. "
@@ -133,6 +164,8 @@ class Plan:
     class_name: str = ""
     individual_name: str = ""
     clarification: str = ""
+    zone_text: str = ""  # words after "à" in the question, still to be resolved
+    zone_name: str = ""  # local name of the Zone individual once resolved
 
 
 def say(language: str, key: str, **values: object) -> str:
@@ -178,6 +211,10 @@ def interpret(question: str) -> Plan:
             return Plan(language, clarification=say(language, "mixed"))
         return _details(question, language)
 
+    zone_plan = _zone_plan(question, language, hits, strong)
+    if zone_plan is not None:
+        return zone_plan
+
     if len(hits) > 1:
         names = ", ".join(display_name(hit.local_name) for hit in hits[:6])
         return Plan(language, clarification=say(language, "several", names=names))
@@ -204,6 +241,16 @@ def describe(plan: Plan, *, limit: int) -> str:
     if plan.intent == GET_DETAILS:
         return say(plan.language, "details", name=plan.individual_name)
     label = display_name(plan.class_name)
+    if plan.intent in ZONE_INTENTS:
+        key = "count_by_zone" if plan.intent == COUNT_BY_ZONE else "by_zone"
+        return say(
+            plan.language,
+            key,
+            name=label,
+            zone=plan.zone_name,
+            properties=", ".join(relation_properties(plan.class_name)),
+            limit=limit,
+        )
     if plan.intent == LIST_TYPES:
         return say(plan.language, "types", name=label)
     subclasses = max(len(subtree_names(plan.class_name)) - 1, 0)
@@ -212,6 +259,30 @@ def describe(plan: Plan, *, limit: int) -> str:
         return say(plan.language, key, name=label, count=subclasses)
     key = "list_leaf" if subclasses == 0 else "list_tree"
     return say(plan.language, key, name=label, count=subclasses, limit=limit)
+
+
+def _zone_plan(question: str, language: str, hits: list[Alias], strong: list[str]) -> Plan | None:
+    """A question such as "Quels techniciens travaillent à Sfax ?".
+
+    One class that can be linked to a zone, plus the words after "à/dans".
+    The zone name is resolved later against the zones stored in Fuseki, so the
+    text of the question never goes into the SPARQL query.
+    """
+    if not hits or set(strong) - {"count"}:
+        return None
+    match = _ZONE_RE.search(question)
+    if match is None:
+        return None
+    zone_text = _clean_candidate(match.group(1))
+    if not zone_text or len(zone_text) > MAX_LOCAL_NAME:
+        return None
+    # The class is whatever comes before "à": "Parc solaire de Tozeur" is a zone name,
+    # not a second class in the question.
+    head = _classes(normalized_question(question[: match.start()]))
+    if len(head) != 1 or not relation_properties(head[0].local_name):
+        return None
+    intent = COUNT_BY_ZONE if "count" in strong else LIST_BY_ZONE
+    return Plan(language, intent, head[0].local_name, zone_text=zone_text)
 
 
 def _details(question: str, language: str) -> Plan:
@@ -241,6 +312,12 @@ def _classes(normalized: str) -> list[Alias]:
         if hit.local_name in seen:
             continue
         if any(is_ancestor(hit.local_name, other) for other in names if other != hit.local_name):
+            continue
+        # "site solaire" also contains "solaire": the longer phrase wins.
+        if any(
+            other.local_name != hit.local_name and f" {hit.phrase} " in f" {other.phrase} "
+            for other in hits
+        ):
             continue
         seen.add(hit.local_name)
         kept.append(hit)
