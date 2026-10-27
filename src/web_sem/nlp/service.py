@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import logging
+import re
 from dataclasses import dataclass, replace
+from difflib import SequenceMatcher
 from urllib.parse import quote
 
 from django.urls import reverse
@@ -12,6 +14,7 @@ from web_sem.nlp.catalog import locate, subtree_names
 from web_sem.nlp.interpret import (
     COUNT_BY_ZONE,
     COUNT_INDIVIDUALS,
+    FILTER_BY_CLASS,
     GET_DETAILS,
     GET_RELATIONS,
     LIST_TYPES,
@@ -26,6 +29,7 @@ from web_sem.nlp.normalize import normalized_question
 from web_sem.nlp.sparql import (
     RESULT_LIMIT,
     QueryRejected,
+    build_individual_lookup,
     build_properties_query,
     build_query,
     build_zone_lookup,
@@ -164,6 +168,145 @@ class QuestionAnswering:
                 http_status=503,
             )
 
+        if (
+            plan.intent == GET_RELATIONS
+            and plan.relation == "zone_infrastructure"
+            and not _has_individual_bindings(payload)
+        ):
+            try:
+                fallback_plan = Plan(
+                    language=plan.language,
+                    intent=FILTER_BY_CLASS,
+                    class_name="Infrastructure",
+                )
+                fallback_query = build_query(fallback_plan)
+                validate_select(fallback_query)
+                fallback_payload = service.select(fallback_query)
+                matches = _infrastructures_named_for_zone(plan.entity_name, fallback_payload)
+            except SparqlServiceError:
+                logger.exception("Fuseki could not check infrastructure names against the requested zone")
+                return Answer(
+                    question=text,
+                    language=plan.language,
+                    intent=plan.intent,
+                    sparql=query,
+                    explanation=explanation,
+                    error=say(plan.language, "store"),
+                    http_status=503,
+                )
+            except (QueryRejected, KeyError, TypeError, ValueError):
+                logger.exception("Fuseki returned an unexpected infrastructure lookup result")
+                return Answer(
+                    question=text,
+                    language=plan.language,
+                    intent=plan.intent,
+                    sparql=query,
+                    explanation=explanation,
+                    error=say(plan.language, "bad_result"),
+                    http_status=502,
+                )
+            if matches:
+                payload = {"results": {"bindings": matches}}
+                explanation += (
+                    " Aucun lien RDF de localisation n’a été trouvé ; "
+                    "les individus dont le nom contient celui de la zone sont affichés."
+                    if plan.language == "fr"
+                    else " No RDF location link was found; individuals whose names contain the zone name are shown."
+                )
+
+        if (
+            plan.intent in {GET_DETAILS, GET_RELATIONS}
+            and not (
+                plan.intent == GET_RELATIONS
+                and plan.relation == "zone_infrastructure"
+            )
+            and not _has_individual_bindings(payload)
+        ):
+            try:
+                lookup_query = build_individual_lookup()
+                validate_select(lookup_query)
+                lookup_payload = service.select(lookup_query)
+            except SparqlServiceError:
+                logger.exception("Fuseki could not look up individuals for fuzzy name matching")
+                return Answer(
+                    question=text,
+                    language=plan.language,
+                    intent=plan.intent,
+                    sparql=query,
+                    explanation=explanation,
+                    error=say(plan.language, "store"),
+                    http_status=503,
+                )
+            except (QueryRejected, KeyError, TypeError, ValueError):
+                logger.exception("Fuseki returned an unexpected individual lookup result")
+                return Answer(
+                    question=text,
+                    language=plan.language,
+                    intent=plan.intent,
+                    sparql=query,
+                    explanation=explanation,
+                    error=say(plan.language, "bad_result"),
+                    http_status=502,
+                )
+
+            try:
+                matches = _fuzzy_individual_matches(_requested_individual(plan), lookup_payload)
+            except (KeyError, TypeError, ValueError):
+                logger.exception("Fuseki returned an unexpected individual lookup result")
+                return Answer(
+                    question=text,
+                    language=plan.language,
+                    intent=plan.intent,
+                    sparql=query,
+                    explanation=explanation,
+                    error=say(plan.language, "bad_result"),
+                    http_status=502,
+                )
+            if len(matches) > 1:
+                clarification = say(
+                    plan.language,
+                    "individual_several",
+                    name=_requested_individual(plan),
+                    names=", ".join(matches[:6]),
+                )
+                return Answer(
+                    question=text,
+                    language=plan.language,
+                    intent=plan.intent,
+                    clarification=clarification,
+                )
+            if matches and matches[0] != _requested_individual(plan):
+                plan = (
+                    replace(plan, individual_name=matches[0])
+                    if plan.intent == GET_DETAILS
+                    else replace(plan, entity_name=matches[0])
+                )
+                try:
+                    query = build_query(plan)
+                    validate_select(query)
+                    explanation = describe(plan, limit=RESULT_LIMIT)
+                    payload = service.select(query)
+                except QueryRejected:
+                    logger.exception("Generated fuzzy individual query failed the read-only policy")
+                    return Answer(
+                        question=text,
+                        language=plan.language,
+                        intent=plan.intent,
+                        error=say(plan.language, "policy"),
+                        http_status=500,
+                    )
+                except SparqlServiceError:
+                    logger.exception("Fuseki could not retrieve the fuzzy-matched individual")
+                    return Answer(
+                        question=text,
+                        language=plan.language,
+                        intent=plan.intent,
+                        sparql=query,
+                        explanation=explanation,
+                        error=say(plan.language, "store"),
+                        http_status=503,
+                    )
+
         try:
             answer = _present(text, plan, query, explanation, payload)
             if plan.intent == GET_DETAILS and answer.rows:
@@ -272,6 +415,74 @@ def _resolve_zone(plan: Plan, service) -> Plan:
 
 
 _FILLER = frozenset({"de", "du", "des", "la", "le", "les", "l", "d", "ville", "zone", "region", "site"})
+
+
+def _has_individual_bindings(payload: object) -> bool:
+    if not isinstance(payload, dict):
+        return False
+    results = payload.get("results")
+    if not isinstance(results, dict):
+        return False
+    bindings = results.get("bindings")
+    return isinstance(bindings, list) and bool(bindings)
+
+
+def _requested_individual(plan: Plan) -> str:
+    return plan.individual_name if plan.intent == GET_DETAILS else plan.entity_name
+
+
+def _infrastructures_named_for_zone(zone_name: str, payload: object) -> list[dict]:
+    if not isinstance(payload, dict):
+        raise TypeError("Infrastructure lookup response is not an object.")
+    results = payload.get("results")
+    if not isinstance(results, dict) or not isinstance(results.get("bindings"), list):
+        raise TypeError("Infrastructure lookup bindings are missing.")
+
+    zone_key = _individual_key(zone_name)
+    if not zone_key:
+        return []
+    return [
+        binding
+        for binding in results["bindings"]
+        if isinstance(binding, dict)
+        and (individual_name := _local(_value(binding, "individual")))
+        and zone_key in _individual_key(individual_name)
+    ]
+
+
+def _fuzzy_individual_matches(wanted: str, payload: object) -> list[str]:
+    if not isinstance(payload, dict):
+        raise TypeError("Individual lookup response is not an object.")
+    results = payload.get("results")
+    if not isinstance(results, dict) or not isinstance(results.get("bindings"), list):
+        raise TypeError("Individual lookup bindings are missing.")
+
+    candidates = {
+        local_name
+        for binding in results["bindings"]
+        if (local_name := _local(_value(binding, "individual")))
+    }
+    wanted_key = _individual_key(wanted)
+    if len(wanted_key) < 4:
+        return []
+
+    scored = sorted(
+        (
+            (SequenceMatcher(None, wanted_key, _individual_key(name)).ratio(), name)
+            for name in candidates
+            if len(_individual_key(name)) >= 4
+        ),
+        reverse=True,
+    )
+    if not scored or scored[0][0] < 0.78:
+        return []
+    best = scored[0][0]
+    return sorted(name for score, name in scored if best - score <= 0.04)
+
+
+def _individual_key(value: str) -> str:
+    separated = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", " ", value.replace("_", " "))
+    return "".join(normalized_question(separated).split())
 
 
 def _property_rows(plan: Plan, service) -> tuple[ResultRow, ...]:

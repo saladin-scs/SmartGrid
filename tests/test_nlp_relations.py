@@ -92,6 +92,38 @@ def test_related_results_are_presented_as_individuals():
     assert answer.empty_message == ""
 
 
+def test_zone_relation_falls_back_to_infrastructure_name_when_rdf_link_is_missing():
+    class FakeService:
+        def select(self, query):
+            if "estSitueDans" in query:
+                return {"results": {"bindings": []}}
+            return {
+                "results": {
+                    "bindings": [
+                        {
+                            "individual": {
+                                "type": "uri",
+                                "value": individual_iri("AVilleSfax"),
+                            },
+                            "type": {
+                                "type": "uri",
+                                "value": class_iri("LigneBasseTension"),
+                            },
+                        }
+                    ]
+                }
+            }
+
+    answer = answer_question(
+        "Quelles infrastructures sont situées dans la zone VilleSfax ?",
+        service=FakeService(),
+    )
+
+    assert [row.title for row in answer.rows] == ["AVilleSfax"]
+    assert "Aucun lien RDF de localisation n’a été trouvé" in answer.explanation
+    assert answer.empty_message == ""
+
+
 def test_relation_examples_are_supported():
     assert "Quels contrats sont liés au client abonné ClientAbonne_LacTunis ?" in SAMPLE_QUESTIONS
     assert "Quelles infrastructures sont situées dans la zone Ville_Sfax ?" in SAMPLE_QUESTIONS

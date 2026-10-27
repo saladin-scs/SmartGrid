@@ -44,6 +44,12 @@ _CREATE_ACTIONS = frozenset(
         "enregistrer",
         "enregistre",
         "enregistrez",
+        "create",
+        "creates",
+        "add",
+        "adds",
+        "register",
+        "registers",
         "ajout",
         "creation",
     }
@@ -55,12 +61,19 @@ _CLASS_STOPWORDS = frozenset(
     }
 )
 _NAME_CUE = re.compile(
-    r"\b(?:(?:appel[ée]e?|nomm[ée]e?)|s['’]appelle|ayant\s+pour\s+nom|de\s+nom|nom)\s+"
+    r"\b(?:(?:appel[ée]e?|nomm[ée]e?|called|named)|s['’]appelle|"
+    r"ayant\s+pour\s+nom|de\s+nom|nom)\s+"
     r"(?!de\s+(?:la\s+)?(?:zone|personne)\b)"
     r"(?P<name>[\wÀ-ÿ][\wÀ-ÿ -]*?)"
     r"(?=\s+(?:avec\b|et\b|dans\s+la\s+(?:région|region|zone|ville)\b|"
     r"situ[ée]e?\s+dans\b|localis[ée]e?\s+dans\b|se\s+trouve\s+dans\b|"
-    r"région\b|region\b|puissance\b)|[,;.!?]|$)",
+    r"région\b|region\b|puissance\b|sans\s+(?:la\s+)?(?:ville|lieu|zone)"
+    r"(?:\s+ni\s+(?:la\s+)?(?:ville|lieu|zone))*\b)|[,;.!?]|$)",
+    re.IGNORECASE,
+)
+_NO_LOCATION = re.compile(
+    r"\bsans\s+(?:la\s+)?(?:ville|lieu|zone)"
+    r"(?:\s+ni\s+(?:la\s+)?(?:ville|lieu|zone))*\b",
     re.IGNORECASE,
 )
 _PROPERTY_ASSIGNMENT = re.compile(
@@ -175,6 +188,7 @@ def prepare_creation(
         class_text = class_text[: name_match.start()] + class_text[name_match.end() :]
     class_text = _PROPERTY_ASSIGNMENT.sub(" ", class_text)
     class_text = _strip_natural_property_clauses(class_text)
+    class_text = _NO_LOCATION.sub(" ", class_text)
     class_name = _resolve_class(class_text)
     if name_match:
         name_value = name_match.group("name")
@@ -421,6 +435,7 @@ def _strip_natural_property_clauses(description: str) -> str:
 
 
 def _infer_name(class_text: str, class_name: str) -> str:
+    folded_text = _fold_accents(class_text)
     phrases = {
         display_name(class_name),
         class_name,
@@ -428,8 +443,8 @@ def _infer_name(class_text: str, class_name: str) -> str:
     }
     matches: list[re.Match[str]] = []
     for phrase in phrases:
-        expression = re.escape(phrase).replace(r"\ ", r"\s+")
-        match = re.search(r"(?<!\w)" + expression + r"(?!\w)", class_text, re.IGNORECASE)
+        expression = re.escape(_fold_accents(phrase)).replace(r"\ ", r"\s+")
+        match = re.search(r"(?<!\w)" + expression + r"(?!\w)", folded_text, re.IGNORECASE)
         if match:
             matches.append(match)
     class_match = (
@@ -438,9 +453,13 @@ def _infer_name(class_text: str, class_name: str) -> str:
         else None
     )
     if class_match is None:
-        raise CreationError("Indiquez le nom de l’individu, par exemple « Ville Sfax ». ")
+        raise CreationError(
+            "Indiquez un nom unique pour l’individu, par exemple « CamionNord ». "
+            "Une ville ou une zone n’est pas obligatoire."
+        )
 
     tail = class_text[class_match.end():]
+    tail = _NO_LOCATION.split(tail, maxsplit=1)[0]
     tail = re.split(
         r"(?i)\b(?:avec|et|dans\s+(?:la\s+)?(?:r[eé]gion|zone|ville)|"
         r"r[eé]gion|puissance\s+install[eé]e|"
@@ -451,8 +470,19 @@ def _infer_name(class_text: str, class_name: str) -> str:
     tail = re.sub(r"^\s*(?:de\s+type|de|du|des|une?|l['’])\s+", "", tail, flags=re.IGNORECASE)
     candidate = tail.strip()
     if not candidate:
-        raise CreationError("Indiquez le nom de l’individu, par exemple « Ville Sfax ». ")
+        raise CreationError(
+            "Indiquez un nom unique pour l’individu, par exemple « CamionNord ». "
+            "Une ville ou une zone n’est pas obligatoire."
+        )
     return candidate
+
+
+def _fold_accents(value: str) -> str:
+    return "".join(
+        char
+        for char in unicodedata.normalize("NFKD", value)
+        if not unicodedata.combining(char)
+    )
 
 
 def _validate_domain(

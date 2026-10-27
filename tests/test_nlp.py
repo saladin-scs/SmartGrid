@@ -290,7 +290,8 @@ def test_details_accept_an_ontology_iri():
     answer, queries = ask(f"Donne-moi les détails de {iri}")
     assert answer.intent == "GET_DETAILS"
     assert answer.sparql.count(f"<{iri}>") == 1
-    assert queries == [answer.sparql]
+    assert queries[0] == answer.sparql
+    assert len(queries) == 2  # Fuzzy lookup runs after the exact name lookup misses.
     validate_select(answer.sparql)
 
 
