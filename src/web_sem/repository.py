@@ -39,6 +39,21 @@ class Individual:
     def property_map(self) -> dict[str, str]:
         return {item.name: item.value for item in self.properties}
 
+    @property
+    def label(self) -> str:
+        """Human name of a person or a zone, when one is stored."""
+        values = self.property_map()
+        return values.get("nomPersonne") or values.get("nomZone") or ""
+
+    @property
+    def zone(self) -> str:
+        """The zone a person works in / lives in, or the city of a site."""
+        values = self.property_map()
+        return values.get("estAffecteA") or values.get("residentDans") or values.get("appartientAVille") or ""
+
+
+SUMMARY_PROPERTIES = ("nomPersonne", "nomZone", "estAffecteA", "residentDans", "appartientAVille")
+
 
 class IndividualRepository:
     def __new__(cls, *args, **kwargs):
@@ -116,6 +131,29 @@ class IndividualRepository:
             properties=self.properties_of(local_name),
             incoming=self.incoming_of(local_name),
         )
+
+    def property_summary(self) -> dict[str, tuple[PropertyValue, ...]]:
+        """Name and zone links of every individual, in one query, for list pages."""
+        values = " ".join(f"<{get_property(name).iri}>" for name in SUMMARY_PROPERTIES)
+        payload = self.service.select(
+            f"""
+            SELECT ?s ?p ?o
+            WHERE {{
+              VALUES ?p {{ {values} }}
+              ?s ?p ?o .
+              FILTER(STRSTARTS(STR(?s), "{ONTOLOGY_NS}"))
+            }}
+            LIMIT 5000
+            """
+        )
+        summary: dict[str, list[PropertyValue]] = {}
+        for binding in payload["results"]["bindings"]:
+            subject = _term(binding, "s")
+            if not subject.startswith(ONTOLOGY_NS):
+                continue
+            found = _property_values({"results": {"bindings": [binding]}}, "p", "o")
+            summary.setdefault(subject[len(ONTOLOGY_NS) :], []).extend(found)
+        return {name: tuple(items) for name, items in summary.items()}
 
     def properties_of(self, local_name: str) -> tuple[PropertyValue, ...]:
         iri = individual_iri(local_name)
