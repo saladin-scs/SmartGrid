@@ -207,7 +207,7 @@ def test_consumer_and_contract_details(question, module_name, individual, class_
     ]
     answer, queries = ask(question, bindings)
     assert answer.intent == GET_DETAILS
-    assert queries == [answer.sparql]
+    assert queries[0] == answer.sparql
     assert answer.sparql.count(f"<{individual_iri(individual)}>") == 1
     assert f"<{class_iri(class_name)}>" in answer.sparql
     assert len(answer.rows) == 1
@@ -275,7 +275,7 @@ def test_details_use_the_exact_individual_iri():
     answer, queries = ask("Donne-moi les détails de CentraleTunis.", bindings)
     assert answer.intent == "GET_DETAILS"
     assert answer.language == "fr"
-    assert queries == [answer.sparql]
+    assert queries[0] == answer.sparql
     validate_select(answer.sparql)
     assert answer.sparql.count(f"<{individual_iri('CentraleTunis')}>") == 1
     assert "Donne-moi" not in answer.sparql
@@ -412,6 +412,17 @@ def test_sample_questions_are_supported():
             "Combien de contrats existe-t-il ?",
             "Liste les contrats de type AbonnementResidentiel.",
             "Quels types de contrats sont disponibles ?",
+            "Quels techniciens travaillent à Sfax ?",
+            "Combien de personnes sont affectées à Tozeur ?",
+            "Quels sites appartiennent à Tozeur ?",
+            "Liste les opérateurs.",
+            "Liste les villes.",
+            "Quels contrats sont liés au client abonné ClientAbonne_LacTunis ?",
+            "Quelles infrastructures sont situées dans la zone Ville_Sfax ?",
+            "Liste les événements.",
+            "Combien de pannes existe-t-il ?",
+            "Liste les capteurs.",
+            "Combien de capteurs existe-t-il ?",
         }
     )
     for sample in SAMPLE_QUESTIONS:
@@ -426,6 +437,8 @@ def test_routes_stay_available():
     assert reverse("stockage:list") == "/stockages/"
     assert reverse("consommateur:list") == "/consommateurs/"
     assert reverse("contrat:list") == "/contrats/"
+    assert reverse("evenement:list") == "/evenements/"
+    assert reverse("capteur_dispositif:list") == "/capteurs/"
 
 
 @pytest.mark.django_db

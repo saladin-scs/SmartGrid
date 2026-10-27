@@ -240,6 +240,16 @@ def _select_related(plan: Plan) -> str:
             False,
             ("Infrastructure", "SiteInstallation"),
         ),
+        "sensor_events": (
+            ("declenche",),
+            True,
+            ("Evenement",),
+        ),
+        "maintenance_infrastructure": (
+            ("concerne",),
+            True,
+            ("Infrastructure",),
+        ),
     }
     configured = relations.get(plan.relation)
     if configured is None:

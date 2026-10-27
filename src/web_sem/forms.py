@@ -115,6 +115,8 @@ class IndividualForm(forms.Form):
             )
         if spec.kind == "email":
             return forms.EmailField(max_length=120, widget=forms.EmailInput(attrs=attrs), **common)
+        if spec.kind == "date":
+            return forms.CharField(max_length=20, widget=forms.TextInput(attrs={**attrs, "type": "date"}), **common)
         return forms.CharField(max_length=120, widget=forms.TextInput(attrs=attrs), **common)
 
     @staticmethod

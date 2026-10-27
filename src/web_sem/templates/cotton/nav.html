@@ -21,7 +21,7 @@
     <p class="nav-heading nav-heading-spaced">Domaine énergétique</p>
     {% for module in ontology_modules %}
       <a class="nav-link {% if active == module.key %}is-active{% endif %}" href="{% url module.list_url_name %}" aria-label="{{ module.root }}" title="{{ module.root }}" {% if active == module.key %}aria-current="page"{% endif %}>
-        <i data-lucide="{% if module.key == 'source_production' %}factory{% elif module.key == 'stockage' %}battery-charging{% elif module.key == 'consommateur' %}users{% elif module.key == 'contrat' %}file-text{% elif module.key == 'infrastructure' %}cable{% elif module.key == 'transport' %}truck{% elif module.key == 'zone' %}map-pin{% else %}user-round{% endif %}"></i>
+        <i data-lucide="{% if module.key == 'source_production' %}factory{% elif module.key == 'stockage' %}battery-charging{% elif module.key == 'consommateur' %}users{% elif module.key == 'contrat' %}file-text{% elif module.key == 'infrastructure' %}cable{% elif module.key == 'transport' %}truck{% elif module.key == 'zone' %}map-pin{% elif module.key == 'evenement' %}activity{% elif module.key == 'capteur_dispositif' %}cpu{% else %}user-round{% endif %}"></i>
         <span>{{ module.root }}</span>
       </a>
     {% endfor %}

@@ -27,6 +27,8 @@ _MODULE_KEYS = {
     "Infrastructure": "infrastructure",
     "Transport": "transport",
     "Zone": "zone",
+    "Evenement": "evenement",
+    "CapteurDispositif": "capteur_dispositif",
 }
 
 

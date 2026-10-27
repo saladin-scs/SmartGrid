@@ -60,6 +60,10 @@ SAMPLE_QUESTIONS = (
     "Liste les villes.",
     "Quels contrats sont liés au client abonné ClientAbonne_LacTunis ?",
     "Quelles infrastructures sont situées dans la zone Ville_Sfax ?",
+    "Liste les événements.",
+    "Combien de pannes existe-t-il ?",
+    "Liste les capteurs.",
+    "Combien de capteurs existe-t-il ?",
     "How many nuclear plants are there?",
 )
 

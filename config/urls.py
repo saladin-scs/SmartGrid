@@ -37,5 +37,7 @@ urlpatterns = [
     path('infrastructures/', include('infrastructure.urls')),
     path('transports/', include('transport.urls')),
     path('zones/', include('zone.urls')),
+    path('evenements/', include('evenement.urls')),
+    path('capteurs/', include('capteur_dispositif.urls')),
     path('admin/', admin.site.urls),
 ]

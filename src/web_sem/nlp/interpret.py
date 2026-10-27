@@ -58,7 +58,7 @@ _DETAIL_RE = re.compile(
 _ZONE_RE = re.compile(
     r"(?is)\b(?:à|au|aux|dans|en)\s+(?:(?:la|le|les|l['’])\s*)?(\S.*?)\s*[?.!]*\s*$"
 )
-_CLASS_FILTER_RE = re.compile(r"(?is)\b(?:de\s+type|type)\s+([A-Za-z][A-Za-z0-9_]*)\s*[.?!]*\s*$")
+_CLASS_FILTER_RE = re.compile(r"(?is)\b(?:de\s+type|type)\s+([A-Za-z][A-Za-z0-9_]*)\b")
 _RELATION_ENTITY_RE = {
     "consumer": re.compile(
         r"(?is)\b(?:consommateurs?|clients?\s+abonn[eé]s?)\b"
@@ -69,17 +69,27 @@ _RELATION_ENTITY_RE = {
         r"(?is)\bzones?\b\s+(?:(?:nomm[eé]e?|de|du|des|d['’]|le|la|l['’])\s+)?"
         r"([A-Za-z][A-Za-z0-9_]*)\s*[.?!\"'»]*\s*$"
     ),
+    "sensor": re.compile(
+        r"(?is)\b(?:capteurs?|dispositifs?|compteurs?\s+intelligents?)\b"
+        r"\s+(?:(?:nomm[eé]e?|de|du|des|d['’]|le|la|l['’])\s+)?"
+        r"([A-Za-z][A-Za-z0-9_]*)\s*[.?!\"'»]*\s*$"
+    ),
+    "maintenance": re.compile(
+        r"(?is)\b(?:maintenances?)\b"
+        r"\s+(?:(?:nomm[eé]e?|de|du|des|d['’]|le|la|l['’])\s+)?"
+        r"([A-Za-z][A-Za-z0-9_]*)\s*[.?!\"'»]*\s*$"
+    ),
 }
 
 _TEXT: dict[str, dict[str, str]] = {
     "fr": {
         "injection": "Cette question contient une syntaxe SPARQL. Reformulez-la en langage naturel.",
-        "empty": "Saisissez une question sur la production, le stockage, les consommateurs, les contrats, les personnes ou les zones.",
+        "empty": "Saisissez une question sur la production, le stockage, les consommateurs, les contrats, les personnes, les zones, les événements ou les capteurs.",
         "unsupported": (
             "Je ne reconnais pas cette question pour les sources de production, le stockage, "
-            "les consommateurs, les contrats, les personnes ou les zones. "
+            "les consommateurs, les contrats, les personnes, les zones, les événements ou les capteurs. "
             "Par exemple : « Quelles sources de production existent ? » "
-            "ou « Quels techniciens travaillent à Sfax ? »."
+            "ou « Quelles pannes sont enregistrées ? »."
         ),
         "several": "Plusieurs classes correspondent : {names}. Précisez une seule classe.",
         "mixed": "La question mélange plusieurs demandes. Choisissez une liste, un compte, un détail ou les types.",
@@ -130,6 +140,8 @@ _TEXT: dict[str, dict[str, str]] = {
         "types": "Classes sous {name} déclarées dans ENERGIE.rdf. La requête SELECT retourne ces IRIs.",
         "related_consumer": "Contrats souscrits par le consommateur {name}.",
         "related_zone": "Infrastructures et sites situés dans la zone {name}.",
+        "related_sensor": "Événements déclenchés par le capteur {name}.",
+        "related_maintenance": "Infrastructures concernées par la maintenance {name}.",
         "empty_related": "Aucun résultat associé à {name} n'a été trouvé dans le jeu de données.",
     },
     "en": {
@@ -179,6 +191,8 @@ _TEXT: dict[str, dict[str, str]] = {
         "types": "Classes under {name} declared in ENERGIE.rdf. The SELECT query returns those IRIs.",
         "related_consumer": "Contracts subscribed to by consumer {name}.",
         "related_zone": "Infrastructure and sites located in zone {name}.",
+        "related_sensor": "Events triggered by sensor {name}.",
+        "related_maintenance": "Infrastructure concerned by maintenance {name}.",
         "empty_related": "No related results were found for {name} in the dataset.",
     },
 }
@@ -237,6 +251,8 @@ def interpret(question: str) -> Plan:
             return Plan(language, clarification=say(language, "which_class"))
         if cues.get("list") or not strong:
             return Plan(language, FILTER_BY_CLASS, requested_class)
+        if "count" in strong:
+            return Plan(language, COUNT_INDIVIDUALS, requested_class)
 
     if "details" in strong or _DETAIL_RE.search(question):
         if strong and strong != ["details"]:
@@ -271,7 +287,14 @@ def interpret(question: str) -> Plan:
 def describe(plan: Plan, *, limit: int) -> str:
     """Explain a plan in the language detected for the question."""
     if plan.intent == GET_RELATIONS:
-        key = "related_consumer" if plan.relation == "consumer_contracts" else "related_zone"
+        if plan.relation == "consumer_contracts":
+            key = "related_consumer"
+        elif plan.relation == "sensor_events":
+            key = "related_sensor"
+        elif plan.relation == "maintenance_infrastructure":
+            key = "related_maintenance"
+        else:
+            key = "related_zone"
         return say(plan.language, key, name=plan.entity_name)
     if plan.intent == GET_DETAILS:
         return say(plan.language, "details", name=plan.individual_name)
@@ -329,6 +352,12 @@ def _relation_plan(question: str, normalized: str, language: str) -> Plan | None
         relation, marker, class_name = "consumer_contracts", "consumer", "ContratAbonnement"
     elif "infrastructure" in words and "zone" in words:
         relation, marker, class_name = "zone_infrastructure", "zone", "Infrastructure"
+    elif (
+        "evenement" in words or "evenements" in words or "panne" in words or "alerte" in words or "maintenance" in words
+    ) and ("capteur" in words or "dispositif" in words or "compteur" in words):
+        relation, marker, class_name = "sensor_events", "sensor", "Evenement"
+    elif "infrastructure" in words and "maintenance" in words:
+        relation, marker, class_name = "maintenance_infrastructure", "maintenance", "Infrastructure"
     else:
         return None
 
@@ -459,7 +488,9 @@ def _individual_name(candidate: str) -> str | None:
 
 
 def _exact_class(candidate: str) -> str | None:
-    parts = normalized_question(candidate).split()
+    if candidate in all_class_names():
+        return candidate
+    parts = normalized_question(display_name(candidate)).split()
     while parts and parts[0] in _ARTICLES:
         parts.pop(0)
     key = " ".join(parts)
