@@ -15,12 +15,13 @@ class EntityCreationForm(forms.Form):
             attrs={
                 "rows": 4,
                 "class": "control",
-                "placeholder": "Ajoute une ville Sfax dans la région du Sahel.",
+                "placeholder": "Créer un véhicule lourd vehi1, sans ville ni zone.",
             }
         ),
         help_text=(
             "Décrivez librement l’individu, sa classe et ses attributs. "
-            "Exemple : « Ajoute une ligne basse tension appelée LigneNord située dans la zone VilleSfax. »"
+            "Exemple : « Créer un véhicule lourd vehi1, sans ville ni zone. » "
+            "La ville et la zone sont facultatives."
         ),
     )
     confirmed = forms.BooleanField(

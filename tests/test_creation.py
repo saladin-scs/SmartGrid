@@ -73,3 +73,57 @@ def test_creation_accepts_ontology_property_assignment_as_before():
     assert preview.local_name == "Sfax"
     assert preview.properties[0].local_name == "region"
     assert preview.properties[0].value == "Sud"
+
+
+def test_transport_can_be_created_without_a_zone():
+    preview = prepare_creation(
+        "Ajoute un transport appelé CamionNord sans ville ni zone",
+        CreationRepository(),
+    )
+
+    assert preview.class_name == "Transport"
+    assert preview.local_name == "CamionNord"
+    assert preview.properties == ()
+    assert len(preview.triples) == 1
+
+
+def test_transport_name_can_follow_class_without_a_name_cue_or_location():
+    preview = prepare_creation(
+        "Ajoute un transport CamionNord sans ville",
+        CreationRepository(),
+    )
+
+    assert preview.class_name == "Transport"
+    assert preview.local_name == "CamionNord"
+    assert preview.properties == ()
+
+
+def test_vehicle_name_can_follow_accented_class_name_directly():
+    preview = prepare_creation(
+        "Créer un véhicule lourd vehi1",
+        CreationRepository(),
+    )
+
+    assert preview.class_name == "VehiculeLourd"
+    assert preview.local_name == "vehi1"
+    assert preview.properties == ()
+
+
+def test_missing_individual_name_does_not_prompt_for_a_city():
+    from web_sem.nlp.creation import CreationError
+
+    with pytest.raises(CreationError, match="Une ville ou une zone n’est pas obligatoire"):
+        prepare_creation("Ajoute un transport", CreationRepository())
+
+
+@pytest.mark.django_db
+def test_creation_page_shows_one_generic_name_error_without_requiring_location(client):
+    response = client.post(
+        "/creation/",
+        {"description": "Ajoute un transport", "action": "preview"},
+    )
+
+    body = response.content.decode()
+    assert response.status_code == 200
+    assert body.count("Indiquez un nom unique pour l’individu") == 1
+    assert "Une ville ou une zone n’est pas obligatoire." in body

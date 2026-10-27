@@ -12,7 +12,6 @@
       <c-field :field="form.confirmed"></c-field>
     {% endif %}
     {{ form.non_field_errors }}
-    {% if form.description.errors %}{{ form.description.errors }}{% endif %}
     <button class="button" type="submit" name="action" value="preview">Prévisualiser les triples</button>
     {% if preview %}
       <button class="button" type="submit" name="action" value="confirm">Confirmer l’insertion</button>
