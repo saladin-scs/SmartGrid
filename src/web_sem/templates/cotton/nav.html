@@ -18,10 +18,6 @@
       <i data-lucide="messages-square"></i><span>Questions en français</span>
     </a>
 
-    <a class="nav-link {% if active == 'scenarios' %}is-active{% endif %}" href="{% url 'scenarios' %}" aria-label="Scénarios" title="Scénarios" {% if active == 'scenarios' %}aria-current="page"{% endif %}>
-      <i data-lucide="list-checks"></i><span>Scénarios</span>
-    </a>
-
     <p class="nav-heading nav-heading-spaced">Domaine énergétique</p>
     {% for module in ontology_modules %}
       <a class="nav-link {% if active == module.key %}is-active{% endif %}" href="{% url module.list_url_name %}" aria-label="{{ module.root }}" title="{{ module.root }}" {% if active == module.key %}aria-current="page"{% endif %}>
