@@ -28,6 +28,24 @@ def subtree_names(local_name: str) -> list[str]:
     return [item.local_name for item in module.classes if item.iri in selected]
 
 
+def relation_properties(local_name: str) -> tuple[str, ...]:
+    """Properties that link an individual of this class to a Zone.
+
+    People are linked with estAffecteA (staff) or residentDans (clients);
+    installation sites are linked to their city with appartientAVille.
+    An empty tuple means the class has no zone relation.
+    """
+    found = locate(local_name)
+    if found is None:
+        return ()
+    module, _item = found
+    if module.root == "Personne":
+        return ("estAffecteA", "residentDans")
+    if module.root == "Zone" and (local_name == "SiteInstallation" or is_ancestor("SiteInstallation", local_name)):
+        return ("appartientAVille",)
+    return ()
+
+
 def all_class_names() -> list[str]:
     names: list[str] = []
     for module in list_modules():

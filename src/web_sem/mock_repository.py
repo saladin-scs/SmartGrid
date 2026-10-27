@@ -28,6 +28,9 @@ class MockIndividualRepository:
             items.append(PropertyValue(name, value, bool(prop and prop.is_object)))
         return tuple(items)
 
+    def property_summary(self) -> dict[str, tuple[PropertyValue, ...]]:
+        return {name: self.properties_of(name) for name in self._load_props()}
+
     def incoming_of(self, local_name: str) -> tuple[PropertyValue, ...]:
         found = []
         for subject, props in sorted(self._load_props().items()):

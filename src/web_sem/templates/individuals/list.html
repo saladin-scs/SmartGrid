@@ -12,23 +12,42 @@
   {{ search_form.non_field_errors }}
 
   {% if individuals %}
+    {% if with_summary %}
+      <div class="class-chips" aria-label="Répartition par classe">
+        <span class="chip chip-total">{{ individuals|length }} individu{{ individuals|length|pluralize }}</span>
+        {% for item in class_counts %}
+          <a class="chip" href="{% url module.list_url_name %}?rdf_type={{ item.name }}">{{ item.label }} <strong>{{ item.count }}</strong></a>
+        {% endfor %}
+      </div>
+    {% endif %}
     <div class="table-wrap">
       <table>
         <thead>
           <tr>
             <th>Individu</th>
             <th>Classe</th>
+            {% if with_summary %}<th>{% if module.key == 'zone' %}Ville de rattachement{% else %}Zone{% endif %}</th>{% endif %}
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {% for individual in individuals %}
             <tr>
-              <td data-label="Individual">
+              <td data-label="Individu">
                 <a href="{% url module.detail_url_name individual.local_name %}">{{ individual.local_name }}</a>
+                {% if individual.label %}<br><span class="help">{{ individual.label }}</span>{% endif %}
               </td>
-              <td data-label="Class">{{ individual.class_display }}</td>
+              <td data-label="Classe">
+                {{ individual.class_display }}
+                <br><span class="help">{% for name in individual.hierarchy %}{% if not forloop.first %} / {% endif %}{{ name }}{% endfor %}</span>
+              </td>
+              {% if with_summary %}
+                <td data-label="Zone">
+                  {% if individual.zone %}{{ individual.zone }}{% else %}<span class="help">—</span>{% endif %}
+                </td>
+              {% endif %}
               <td class="row-actions" data-label="Actions">
+                <a href="{% url module.detail_url_name individual.local_name %}">Voir</a>
                 <a href="{% url module.edit_url_name individual.local_name %}">Modifier</a>
                 <a href="{% url module.delete_url_name individual.local_name %}">Supprimer</a>
               </td>

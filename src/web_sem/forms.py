@@ -49,12 +49,24 @@ class IndividualSearchForm(forms.Form):
 class PropertyField:
     """A property edited next to the class: a literal (text/decimal/email) or a link."""
 
-    def __init__(self, name, label, *, kind="text", required=False, ref_root="", only_classes=(), help_text=""):
+    def __init__(
+        self,
+        name,
+        label,
+        *,
+        kind="text",
+        required=False,
+        ref_root="",
+        ref_class="",
+        only_classes=(),
+        help_text="",
+    ):
         self.name = name
         self.label = label
         self.kind = kind
         self.required = required
         self.ref_root = ref_root
+        self.ref_class = ref_class
         self.only_classes = tuple(only_classes)
         self.help_text = help_text
 
@@ -90,7 +102,9 @@ class IndividualForm(forms.Form):
         attrs = {"class": "control"}
         common = {"label": spec.label, "required": spec.required, "help_text": spec.help_text}
         if spec.kind == "ref":
-            choices = [("", "— Aucun —")] + [(n, n) for n in self._reference_names(spec.ref_root)]
+            choices = [("", "— Aucun —")] + [
+                (n, n) for n in self._reference_names(spec.ref_root, spec.ref_class)
+            ]
             return forms.ChoiceField(choices=choices, widget=forms.Select(attrs=attrs), **common)
         if spec.kind == "decimal":
             return forms.DecimalField(
@@ -104,9 +118,15 @@ class IndividualForm(forms.Form):
         return forms.CharField(max_length=120, widget=forms.TextInput(attrs=attrs), **common)
 
     @staticmethod
-    def _reference_names(root: str) -> list[str]:
+    def _reference_names(root: str, class_name: str = "") -> list[str]:
         try:
-            return [i.local_name for i in IndividualRepository().list_individuals(get_module(root))]
+            return [
+                i.local_name
+                for i in IndividualRepository().list_individuals(
+                    get_module(root),
+                    class_name=class_name,
+                )
+            ]
         except SparqlServiceError:
             return []
 
