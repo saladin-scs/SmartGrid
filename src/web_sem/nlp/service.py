@@ -45,6 +45,11 @@ SAMPLE_QUESTIONS = (
     "How many nuclear plants are there?",
 )
 
+_CLASS_LABEL = {
+    "fr": ("Classe", "aucun individu", "individu(s)"),
+    "en": ("Class", "no individual", "individual(s)"),
+}
+
 
 @dataclass(frozen=True, slots=True)
 class ResultRow:
@@ -147,12 +152,14 @@ def _present(question: str, plan: Plan, query: str, explanation: str, payload: d
         rows = tuple(_class_rows(plan, bindings))
         if not rows:
             empty = say(plan.language, "empty_types")
-    else:
+    elif plan.intent == GET_DETAILS:
         rows = tuple(_individual_rows(bindings))
         if not rows:
-            label = plan.individual_name or display_name(plan.class_name)
-            key = "empty_details" if plan.intent == GET_DETAILS else "empty_list"
-            empty = say(plan.language, key, name=label)
+            empty = say(plan.language, "empty_details", name=plan.individual_name)
+    else:  # LIST_INDIVIDUALS, FILTER_BY_CLASS: classes first, then individuals
+        rows = tuple(_list_rows(plan, bindings)) + tuple(_individual_rows(bindings))
+        if not rows:
+            empty = say(plan.language, "empty_list", name=display_name(plan.class_name))
 
     return Answer(
         question=question,
@@ -173,6 +180,44 @@ def _count(bindings: list) -> int:
     if not raw.isdigit():
         raise ValueError("COUNT was not an integer.")
     return int(raw)
+
+
+def _list_rows(plan: Plan, bindings: list) -> list[ResultRow]:
+    """One row per class of the subtree, with its number of individuals.
+
+    The query uses OPTIONAL, so a class with no individual still comes back
+    with ?type bound and ?individual unbound.
+    """
+    members: dict[str, set[str]] = {}
+    for binding in bindings:
+        type_name = _local(_value(binding, "type"))
+        if not type_name:
+            continue
+        found = members.setdefault(type_name, set())
+        individual = _local(_value(binding, "individual"))
+        if individual:
+            found.add(individual)
+
+    label, none, unit = _CLASS_LABEL.get(plan.language, _CLASS_LABEL["en"])
+    rows: list[ResultRow] = []
+    for local_name in subtree_names(plan.class_name):
+        if local_name not in members:
+            continue
+        located = locate(local_name)
+        if located is None:
+            continue
+        module, ontology_class = located
+        total = len(members[local_name])
+        detail = none if total == 0 else f"{total} {unit}"
+        rows.append(
+            ResultRow(
+                title=ontology_class.display_name,
+                subtitle=f"{label} · {detail}",
+                meta=" / ".join(module.hierarchy(local_name)),
+                href=f"{reverse(module.list_url_name)}?rdf_type={quote(local_name)}",
+            )
+        )
+    return rows
 
 
 def _individual_rows(bindings: list) -> list[ResultRow]:

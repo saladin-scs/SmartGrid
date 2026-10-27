@@ -1,0 +1,66 @@
+<c-layout active="overview" title="Vue d’ensemble">
+  <section class="page-intro">
+    <div>
+      <p class="eyebrow"><span class="eyebrow-line"></span> Centre de pilotage</p>
+      <h1>Vue d’ensemble</h1>
+      <p class="page-summary">Une lecture fiable de votre graphe énergétique, calculée à partir des données RDF.</p>
+    </div>
+    <div class="data-source-label"><span class="status-dot {% if not store_available %}status-dot-offline{% endif %}"></span><span>Apache Jena Fuseki</span><span class="data-source-divider">/</span><span>{% if store_available %}Connecté{% else %}Indisponible{% endif %}</span></div>
+  </section>
+
+  {% if not store_available %}
+    <section class="state-panel state-error" role="alert">
+      <span class="state-icon"><i data-lucide="circle-alert"></i></span>
+      <div><h2>Les données ne sont pas disponibles</h2><p>La connexion au jeu Fuseki ou la lecture de l’ontologie a échoué. Les indicateurs restent masqués jusqu’au prochain chargement réussi.</p></div>
+      <a class="button button-secondary" href="{% url 'overview' %}">Réessayer</a>
+    </section>
+  {% else %}
+    <section class="metric-grid grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3" aria-label="Indicateurs du graphe">
+      <article class="metric-card metric-featured">
+        <div class="metric-top"><span class="metric-icon"><i data-lucide="boxes"></i></span><span class="metric-label">INDIVIDUS RDF</span><span class="metric-trend"><i data-lucide="database"></i> Données réelles</span></div>
+        <p class="metric-value">{{ summary.total_individuals }}</p><p class="metric-caption">Individus typés dans les classes de l’ontologie</p>
+      </article>
+      <article class="metric-card">
+        <div class="metric-top"><span class="metric-icon metric-icon-muted"><i data-lucide="git-branch"></i></span><span class="metric-label">CLASSES REPRÉSENTÉES</span></div>
+        <p class="metric-value">{{ summary.typed_classes }}</p><p class="metric-caption">Classes avec au moins un individu</p>
+      </article>
+      <article class="metric-card">
+        <div class="metric-top"><span class="metric-icon metric-icon-muted"><i data-lucide="database"></i></span><span class="metric-label">CONNEXION RDF</span></div>
+        <p class="metric-value metric-value-status"><span class="status-dot"></span> Connecté</p><p class="metric-caption">Requêtes de comptage traitées par Fuseki</p>
+      </article>
+    </section>
+
+    <section class="dashboard-grid grid grid-cols-1 xl:grid-cols-3">
+      <article class="surface-panel chart-panel xl:col-span-2">
+        <div class="panel-heading">
+          <div><p class="eyebrow">Structure du graphe</p><h2>Individus par classe</h2></div>
+          <a class="text-link" href="{% url 'graph' %}">Explorer le graphe <i data-lucide="arrow-up-right"></i></a>
+        </div>
+        {% if summary.type_distribution %}
+          <div class="chart-container"><canvas id="type-distribution-chart" aria-label="Répartition des individus par classe de l’ontologie" role="img"></canvas></div>
+          {{ summary.type_distribution|json_script:"type-distribution-data" }}
+        {% else %}
+          <div class="empty-chart"><span class="empty-chart-icon"><i data-lucide="chart-no-axes-combined"></i></span><p>Aucun individu typé n’est présent dans les classes de l’ontologie.</p><a class="text-link" href="{% url 'questions' %}">Interroger le jeu RDF <i data-lucide="arrow-up-right"></i></a></div>
+        {% endif %}
+      </article>
+      <article class="surface-panel domain-panel">
+        <div class="panel-heading"><div><p class="eyebrow">Ontologie ENERGIE</p><h2>Domaines</h2></div><span class="panel-count">{{ summary.modules|length }}</span></div>
+        <div class="domain-rows">
+          {% for module in summary.modules %}
+            <a href="{% url module.list_url_name %}" class="domain-row">
+              <span class="domain-row-icon"><i data-lucide="{% if module.key == 'source_production' %}factory{% elif module.key == 'stockage' %}battery-charging{% elif module.key == 'consommateur' %}users{% elif module.key == 'contrat' %}file-text{% elif module.key == 'infrastructure' %}cable{% elif module.key == 'transport' %}truck{% elif module.key == 'zone' %}map-pin{% else %}user-round{% endif %}"></i></span>
+              <span class="domain-row-name">{{ module.root }}</span>
+              <span class="domain-row-meta">{{ module.classes|length }} classes</span>
+              <i class="domain-row-arrow" data-lucide="arrow-up-right"></i>
+            </a>
+          {% endfor %}
+        </div>
+      </article>
+    </section>
+    <section class="overview-shortcuts">
+      <a class="shortcut-card" href="{% url 'graph' %}"><span class="shortcut-icon"><i data-lucide="network"></i></span><span><strong>Explorer les relations</strong><small>Parcourir les entités du graphe RDF</small></span><i class="shortcut-arrow" data-lucide="arrow-up-right"></i></a>
+      <a class="shortcut-card" href="{% url 'questions' %}"><span class="shortcut-icon"><i data-lucide="messages-square"></i></span><span><strong>Poser une question</strong><small>Interroger les données en français</small></span><i class="shortcut-arrow" data-lucide="arrow-up-right"></i></a>
+      <a class="shortcut-card" href="{% url 'entity_creation' %}"><span class="shortcut-icon"><i data-lucide="sparkles"></i></span><span><strong>Créer un individu</strong><small>Prévisualiser puis confirmer les triples</small></span><i class="shortcut-arrow" data-lucide="arrow-up-right"></i></a>
+    </section>
+  {% endif %}
+</c-layout>

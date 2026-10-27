@@ -1,0 +1,55 @@
+<c-layout active="graph" title="Graphe de connaissance">
+  <section class="page-intro">
+    <div>
+      <p class="eyebrow"><span class="eyebrow-line"></span> Explorateur RDF</p>
+      <h1>Graphe de connaissance</h1>
+      <p class="page-summary">Naviguez les individus et relations réellement enregistrés dans Fuseki.</p>
+    </div>
+    <div class="graph-limit-label"><i data-lucide="shield-check"></i> Lecture seule <span>·</span> {{ graph_triple_limit }} triples max.</div>
+  </section>
+
+  <section class="graph-toolbar surface-panel" aria-label="Filtres du graphe">
+    <label class="graph-filter" for="graph-class-filter">
+      <span class="filter-label">Classe et descendants</span>
+      <select class="control" id="graph-class-filter">
+        <option value="">Toutes les classes</option>
+        {% for item in ontology_classes %}
+          <option value="{{ item.local_name }}">{{ item.display_name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="graph-filter graph-search" for="graph-search">
+      <span class="filter-label">Rechercher un nœud</span>
+      <span class="search-control"><i data-lucide="search"></i><input class="control" id="graph-search" type="search" placeholder="Nom ou classe…" autocomplete="off"></span>
+    </label>
+    <div class="graph-toolbar-actions">
+      <button class="button button-secondary" id="graph-reset" type="button"><i data-lucide="rotate-ccw"></i> Réinitialiser</button>
+      <button class="icon-button graph-control" id="graph-fit" type="button" aria-label="Cadrer le graphe"><i data-lucide="maximize-2"></i></button>
+      <button class="icon-button graph-control" id="graph-zoom-in" type="button" aria-label="Zoom avant"><i data-lucide="zoom-in"></i></button>
+      <button class="icon-button graph-control" id="graph-zoom-out" type="button" aria-label="Zoom arrière"><i data-lucide="zoom-out"></i></button>
+    </div>
+  </section>
+
+  <section class="graph-workspace">
+    <div class="graph-panel surface-panel">
+      <div class="graph-panel-heading"><div><span class="live-indicator"><span class="status-dot"></span> DONNÉES DU GRAPHE</span><h2>Relations RDF</h2></div><span class="graph-count"><span id="graph-count">—</span><small>nœuds</small></span></div>
+      <div class="graph-canvas" id="knowledge-graph" data-source="{% url 'graph_data' %}" role="application" aria-label="Graphe interactif d’individus et de relations RDF"></div>
+      <div class="graph-state" id="graph-state" role="status" aria-live="polite"><span class="state-spinner"></span><span>Chargement des données RDF…</span></div>
+      <p class="graph-truncation" id="graph-truncation" hidden>Limite initiale atteinte. Affinez le filtre de classe pour explorer davantage.</p>
+      <div class="graph-legend" aria-label="Légende">
+        <span><i class="legend-dot legend-individual"></i> Individu</span><span><i class="legend-dot legend-class"></i> Classe</span><span><i class="legend-dot legend-literal"></i> Valeur littérale</span>
+      </div>
+    </div>
+    <aside class="graph-details surface-panel" aria-labelledby="detail-title">
+      <div class="detail-panel-heading"><span class="detail-icon"><i data-lucide="scan-search"></i></span><div><p class="eyebrow">Inspection</p><h2 id="detail-title">Détail du nœud</h2></div></div>
+      <div class="detail-empty" id="graph-detail-empty"><i data-lucide="mouse-pointer-2"></i><p>Sélectionnez un nœud pour examiner son type et son identifiant RDF.</p></div>
+      <dl class="graph-detail-values" id="graph-detail-values" hidden>
+        <div><dt>Nom</dt><dd id="detail-label"></dd></div>
+        <div><dt>Type</dt><dd id="detail-kind"></dd></div>
+        <div><dt>Classe</dt><dd id="detail-class"></dd></div>
+        <div><dt>IRI / valeur</dt><dd><code id="detail-iri"></code></dd></div>
+      </dl>
+      <div class="detail-note"><i data-lucide="info"></i><span>Les nœuds et relations affichés proviennent des triples renvoyés par Fuseki.</span></div>
+    </aside>
+  </section>
+</c-layout>

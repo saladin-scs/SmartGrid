@@ -1,5 +1,5 @@
-<c-layout :active="active" title="RDF store unavailable">
-  <c-alert>The RDF store could not complete this request.</c-alert>
+<c-layout :active="active" title="Magasin RDF indisponible">
+  <c-alert>Le magasin RDF n’a pas pu traiter cette requête.</c-alert>
   {% if message %}<p class="identity"><code>{{ message }}</code></p>{% endif %}
-  <p><a href="{% url 'home' %}">Back to home</a></p>
+  <p><a class="text-link" href="{% url 'overview' %}">Retour à la vue d’ensemble</a></p>
 </c-layout>

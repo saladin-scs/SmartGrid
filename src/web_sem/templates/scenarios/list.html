@@ -1,0 +1,12 @@
+<c-layout active="scenarios" title="Scénarios">
+  <c-page-header title="Scénarios Personne et Zone" eyebrow="Intelligence" summary="Questions métier prêtes à l’emploi, répondues par des requêtes SPARQL sur Fuseki."></c-page-header>
+  <div class="scenario-grid">
+    {% for item in scenarios %}
+      <a class="card scenario-card" href="{% url 'scenario_run' item.key %}">
+        <span class="scenario-actor">{{ item.actor }}</span>
+        <h2>{{ item.title }}</h2>
+        <p>{{ item.description }}</p>
+      </a>
+    {% endfor %}
+  </div>
+</c-layout>

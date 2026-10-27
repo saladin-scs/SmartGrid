@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@source "../../templates/**/*.html";
+
+@theme {
+  --color-energy-950: #07110f;
+  --color-energy-900: #0b1714;
+  --color-energy-850: #101e1a;
+  --color-energy-800: #16251f;
+  --color-energy-700: #263831;
+  --color-mint-400: #76f0bd;
+  --color-mint-500: #45d89a;
+  --font-sans: "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+}

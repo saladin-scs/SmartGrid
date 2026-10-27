@@ -1,14 +1,20 @@
-<c-layout active="questions" title="Questions">
-  <c-page-header title="Questions" eyebrow="Natural language" summary="Ask about production sources, storage, consumers, or contracts. The answer is a read-only SPARQL query on the energy dataset."></c-page-header>
+<c-layout active="questions" title="Questions en français">
+  <section class="page-intro">
+    <div>
+      <p class="eyebrow"><span class="eyebrow-line"></span> Interrogation sémantique</p>
+      <h1>Questions en français</h1>
+      <p class="page-summary">Interrogez les données énergétiques en langage naturel. Chaque réponse s’appuie sur une requête SPARQL en lecture seule.</p>
+    </div>
+  </section>
 
   <form id="question-form" class="panel question-form" method="get" action="{% url 'questions' %}">
     {% for field in form %}
       <c-field :field="field"></c-field>
     {% endfor %}
-    <button id="ask-button" class="button" type="submit">Ask</button>
+    <button id="ask-button" class="button" type="submit"><i data-lucide="search"></i> Interroger le graphe</button>
   </form>
 
-  <h2 class="section-title">Sample questions</h2>
+  <h2 class="section-title">Exemples de questions</h2>
   <div class="samples">
     {% for sample in samples %}
       <a class="button button-quiet" href="?q={{ sample|urlencode }}">{{ sample }}</a>
@@ -16,7 +22,7 @@
   </div>
 
   {% if answer %}
-    <section class="panel answer-panel" aria-label="Answer">
+    <section class="panel answer-panel" aria-label="Réponse">
       {% if answer.clarification %}
         <c-alert level="warning">{{ answer.clarification }}</c-alert>
       {% endif %}
@@ -37,8 +43,8 @@
           <table>
             <thead>
               <tr>
-                <th>Result</th>
-                <th>Description</th>
+                <th>Résultat</th>
+                <th>Détails</th>
               </tr>
             </thead>
             <tbody>
@@ -65,7 +71,7 @@
       {% endif %}
       {% if answer.sparql %}
         <details class="sparql-block">
-          <summary>Generated SPARQL</summary>
+          <summary>Requête SPARQL générée</summary>
           <pre class="sparql"><code>{{ answer.sparql }}</code></pre>
         </details>
       {% endif %}
@@ -80,7 +86,7 @@
         if (!button) return;
         button.disabled = true;
         button.setAttribute("aria-busy", "true");
-        button.textContent = "Searching…";
+        button.textContent = "Recherche en cours…";
       });
     })();
   </script>

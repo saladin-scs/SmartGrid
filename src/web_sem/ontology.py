@@ -44,6 +44,15 @@ class OntologyClass:
 
 
 @dataclass(frozen=True, slots=True)
+class OntologyProperty:
+    local_name: str
+    iri: str
+    domains: tuple[str, ...]
+    ranges: tuple[str, ...]
+    is_object: bool
+
+
+@dataclass(frozen=True, slots=True)
 class OntologyModule:
     root: str
     key: str
@@ -111,6 +120,7 @@ class OntologyModule:
 class Catalog:
     modules: dict[str, OntologyModule]
     reserved_names: frozenset[str]
+    properties: dict[str, OntologyProperty]
 
 
 def display_name(local_name: str) -> str:
@@ -143,6 +153,14 @@ def list_modules() -> tuple[OntologyModule, ...]:
 
 def reserved_names() -> frozenset[str]:
     return load_catalog().reserved_names
+
+
+def list_properties() -> tuple[OntologyProperty, ...]:
+    return tuple(load_catalog().properties.values())
+
+
+def get_property(local_name: str) -> OntologyProperty | None:
+    return load_catalog().properties.get(local_name)
 
 
 @lru_cache(maxsize=1)
@@ -186,13 +204,25 @@ def load_catalog() -> Catalog:
         raise OntologyError(f"ENERGIE.rdf has no class for: {', '.join(missing)}")
 
     reserved = set(class_names)
+    properties: dict[str, OntologyProperty] = {}
     for property_type in (OWL.ObjectProperty, OWL.DatatypeProperty):
         for subject in graph.subjects(RDF.type, property_type):
             name = _local_name(subject)
             if name:
                 reserved.add(name)
+                properties[name] = OntologyProperty(
+                    local_name=name,
+                    iri=str(subject),
+                    domains=tuple(str(term) for term in graph.objects(subject, RDFS.domain)),
+                    ranges=tuple(str(term) for term in graph.objects(subject, RDFS.range)),
+                    is_object=property_type == OWL.ObjectProperty,
+                )
 
-    return Catalog(modules=modules, reserved_names=frozenset(reserved))
+    return Catalog(
+        modules=modules,
+        reserved_names=frozenset(reserved),
+        properties=properties,
+    )
 
 
 def _module(root: str, key: str, children: dict[str, list[str]]) -> OntologyModule:

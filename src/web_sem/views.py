@@ -5,12 +5,13 @@ from __future__ import annotations
 import logging
 
 from django.contrib import messages
-from django.http import Http404, HttpRequest, HttpResponse
+from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.views.decorators.http import require_http_methods
+from django.views.decorators.http import require_GET, require_http_methods
 
 from web_sem.forms import IndividualForm, IndividualSearchForm
+from web_sem.intelligence import GRAPH_TRIPLE_LIMIT, dashboard_summary, knowledge_graph
 from web_sem.ontology import OntologyError, get_module, individual_iri, list_modules
 from web_sem.repository import IndividualRepository
 from web_sem.sparql import SparqlServiceError
@@ -35,7 +36,67 @@ def home(request: HttpRequest) -> HttpResponse:
         modules = list_modules()
     except OntologyError as exc:
         return _unavailable(request, exc)
-    return render(request, "home.html", {"modules": modules, "active": "home"})
+    return render(request, "home.html", {"modules": modules, "active": "public"})
+
+
+@require_GET
+def overview(request: HttpRequest) -> HttpResponse:
+    summary = None
+    status = 200
+    try:
+        summary = dashboard_summary()
+    except (OntologyError, SparqlServiceError):
+        logger.exception("Could not load the SmartGrid overview from Fuseki")
+        status = 503
+    return render(
+        request,
+        "intelligence/overview.html",
+        {"active": "overview", "summary": summary, "store_available": summary is not None},
+        status=status,
+    )
+
+
+@require_GET
+def graph_explorer(request: HttpRequest) -> HttpResponse:
+    try:
+        modules = list_modules()
+    except OntologyError:
+        logger.exception("Could not load ontology classes for the graph explorer")
+        return render(
+            request,
+            "individuals/unavailable.html",
+            {
+                "message": "L’ontologie ENERGIE.rdf n’est pas disponible.",
+                "active": "graph",
+            },
+            status=503,
+        )
+    classes = [item for module in modules for item in module.classes]
+    return render(
+        request,
+        "intelligence/graph.html",
+        {
+            "active": "graph",
+            "ontology_classes": classes,
+            "graph_triple_limit": GRAPH_TRIPLE_LIMIT,
+        },
+    )
+
+
+@require_GET
+def graph_data(request: HttpRequest) -> JsonResponse:
+    class_name = request.GET.get("class", "").strip()
+    try:
+        payload = knowledge_graph(class_name)
+    except ValueError:
+        return JsonResponse({"error": "Classe de l’ontologie inconnue."}, status=400)
+    except (OntologyError, SparqlServiceError):
+        logger.exception("Could not retrieve graph data from Fuseki")
+        return JsonResponse(
+            {"error": "Fuseki ou l’ontologie est indisponible."},
+            status=503,
+        )
+    return JsonResponse(payload)
 
 
 @rdf_page
@@ -86,7 +147,9 @@ def individual_create(request: HttpRequest, form_class: type[IndividualForm]) ->
     if request.method == "POST" and form.is_valid():
         name = form.cleaned_data["local_name"]
         try:
-            IndividualRepository().create(module, name, form.cleaned_data["rdf_type"])
+            IndividualRepository().create(
+                module, name, form.cleaned_data["rdf_type"], form.property_values()
+            )
         except SparqlServiceError:
             logger.exception("Could not create RDF individual")
             form.add_error(None, "The RDF store could not save this individual.")
@@ -121,13 +184,17 @@ def individual_edit(
         editing=True,
         initial={"rdf_type": individual.class_name},
     )
+    form.set_initial_properties(individual.property_map())
     if request.method == "POST" and form.is_valid():
         try:
-            IndividualRepository().update_class(
+            repository = IndividualRepository()
+            repository.update_class(
                 module,
                 individual.local_name,
                 form.cleaned_data["rdf_type"],
             )
+            if form.property_fields:
+                repository.set_properties(individual.local_name, form.property_values())
         except SparqlServiceError:
             logger.exception("Could not update RDF individual")
             form.add_error(None, "The RDF store could not save this individual.")
@@ -190,3 +257,46 @@ def _unavailable(request: HttpRequest, exc: Exception) -> HttpResponse:
         {"message": str(exc), "active": ""},
         status=503,
     )
+
+
+@require_GET
+def scenario_list(request: HttpRequest) -> HttpResponse:
+    from web_sem.scenarios import SCENARIOS
+
+    return render(request, "scenarios/list.html", {"scenarios": SCENARIOS, "active": "scenarios"})
+
+
+@require_GET
+def scenario_run(request: HttpRequest, key: str) -> HttpResponse:
+    from web_sem import scenarios
+
+    scenario = scenarios.BY_KEY.get(key)
+    if scenario is None:
+        raise Http404("Unknown scenario.")
+    value = request.GET.get("value", "").strip()
+    context = {
+        "scenario": scenario,
+        "active": "scenarios",
+        "value": value,
+        "choices": [],
+        "rows": [],
+        "query": "",
+        "error": "",
+        "ready": False,
+    }
+    status = 200
+    try:
+        if scenario.param:
+            context["choices"] = scenarios.param_choices(scenario)
+        if not scenario.param or value:
+            if scenario.param and value not in context["choices"]:
+                context["error"] = "Choisissez un individu de la liste."
+                status = 400
+            else:
+                context["query"], context["rows"] = scenarios.run(scenario, value)
+                context["ready"] = True
+    except (OntologyError, SparqlServiceError):
+        logger.exception("Scenario %s failed", key)
+        context["error"] = "Fuseki ou l’ontologie est indisponible."
+        status = 503
+    return render(request, "scenarios/run.html", context, status=status)

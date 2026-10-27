@@ -7,6 +7,7 @@ literal. The user question is never copied into the query.
 from __future__ import annotations
 
 import re
+import threading
 
 from rdflib import BNode, Literal, URIRef
 from rdflib.plugins.sparql.algebra import translateQuery
@@ -39,6 +40,7 @@ _ALLOWED_NODES = frozenset(
         "Builtin_STR",
         "Builtin_LCASE",
         "Join",
+        "LeftJoin",
         "ToMultiSet",
         "values",
         "BGP",
@@ -57,6 +59,12 @@ _FORBIDDEN = re.compile(
 
 class QueryRejected(Exception):
     """A query is not a supported read-only SELECT."""
+
+
+# RDFLib's SPARQL grammar stores parse-action arity in a closure. Django
+# serves requests on several threads, and a concurrent parse can latch the
+# wrong arity for the rest of the process. One parse at a time avoids that.
+_PARSE_LOCK = threading.Lock()
 
 
 def build_query(plan: Plan) -> str:
@@ -84,7 +92,8 @@ def validate_select(query: str) -> None:
         raise QueryRejected("SPARQL query must declare one LIMIT.")
 
     try:
-        algebra = translateQuery(parseQuery(query)).algebra
+        with _PARSE_LOCK:
+            algebra = translateQuery(parseQuery(query)).algebra
     except QueryRejected:
         raise
     except Exception as exc:
@@ -102,16 +111,17 @@ def _select_individuals(local_names: list[str]) -> str:
     values = _class_values(local_names)
     namespace = _namespace_literal()
     return (
-        "SELECT ?individual ?type\n"
+        "SELECT ?type ?individual\n"
         "WHERE {\n"
         f"  VALUES ?type {{ {values} }}\n"
-        "  ?individual a ?type .\n"
-        f"  FILTER(STRSTARTS(STR(?individual), {namespace}))\n"
+        "  OPTIONAL {\n"
+        "    ?individual a ?type .\n"
+        f"    FILTER(STRSTARTS(STR(?individual), {namespace}))\n"
+        "  }\n"
         "}\n"
-        "ORDER BY LCASE(STR(?individual))\n"
+        "ORDER BY STR(?type) LCASE(STR(?individual))\n"
         f"LIMIT {RESULT_LIMIT}\n"
     )
-
 
 def _count_individuals(local_names: list[str]) -> str:
     values = _class_values(local_names)

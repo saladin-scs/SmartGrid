@@ -6,15 +6,24 @@ ENERGIE.rdf or from a validated individual name.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
+from decimal import Decimal
 from django.conf import settings
 
 from web_sem.ontology import (
     ONTOLOGY_NS,
     OntologyModule,
+    get_property,
     individual_iri,
 )
 from web_sem.sparql import SparqlService
+
+
+@dataclass(frozen=True, slots=True)
+class PropertyValue:
+    name: str
+    value: str
+    is_object: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -24,6 +33,11 @@ class Individual:
     class_name: str
     class_display: str
     hierarchy: tuple[str, ...]
+    properties: tuple[PropertyValue, ...] = ()
+    incoming: tuple[PropertyValue, ...] = ()
+
+    def property_map(self) -> dict[str, str]:
+        return {item.name: item.value for item in self.properties}
 
 
 class IndividualRepository:
@@ -94,7 +108,48 @@ class IndividualRepository:
         ]
         if not types:
             return None
-        return self._individual(module, iri, types)
+        individual = self._individual(module, iri, types)
+        if individual is None:
+            return None
+        return replace(
+            individual,
+            properties=self.properties_of(local_name),
+            incoming=self.incoming_of(local_name),
+        )
+
+    def properties_of(self, local_name: str) -> tuple[PropertyValue, ...]:
+        iri = individual_iri(local_name)
+        payload = self.service.select(
+            f"""
+            SELECT ?p ?o
+            WHERE {{
+              <{iri}> ?p ?o .
+              FILTER(STRSTARTS(STR(?p), "{ONTOLOGY_NS}"))
+            }}
+            ORDER BY ?p
+            """
+        )
+        return tuple(_property_values(payload, "p", "o"))
+
+    def incoming_of(self, local_name: str) -> tuple[PropertyValue, ...]:
+        iri = individual_iri(local_name)
+        payload = self.service.select(
+            f"""
+            SELECT ?p ?s
+            WHERE {{
+              ?s ?p <{iri}> .
+              FILTER(STRSTARTS(STR(?p), "{ONTOLOGY_NS}"))
+            }}
+            ORDER BY ?p ?s
+            """
+        )
+        return tuple(_property_values(payload, "p", "s", force_object=True))
+
+    def set_properties(self, local_name: str, values: dict[str, str]) -> None:
+        """Replace the given ontology properties; empty values only delete."""
+        updates = _property_updates(local_name, values)
+        if updates:
+            self.service.update(updates)
 
     def exists(self, local_name: str) -> bool:
         iri = individual_iri(local_name)
@@ -111,11 +166,19 @@ class IndividualRepository:
         )
         return bool(payload["results"]["bindings"])
 
-    def create(self, module: OntologyModule, local_name: str, class_name: str) -> None:
+    def create(
+        self,
+        module: OntologyModule,
+        local_name: str,
+        class_name: str,
+        properties: dict[str, str] | None = None,
+    ) -> None:
         iri = individual_iri(local_name)
         self.service.update(
             f"INSERT DATA {{ <{iri}> a <{module.classes_by_name[class_name].iri}> . }}"
         )
+        if properties:
+            self.set_properties(local_name, properties)
 
     def update_class(self, module: OntologyModule, local_name: str, class_name: str) -> None:
         iri = individual_iri(local_name)
@@ -186,3 +249,44 @@ def _fragment(iri: str) -> str | None:
     if "#" not in iri:
         return None
     return iri.rsplit("#", 1)[-1]
+
+
+def _property_values(
+    payload: dict, predicate: str, value: str, *, force_object: bool = False
+) -> list[PropertyValue]:
+    items = []
+    for binding in payload["results"]["bindings"]:
+        name = _fragment(_term(binding, predicate))
+        term = binding.get(value) or {}
+        text = _term(binding, value)
+        if not name or not text:
+            continue
+        is_object = force_object or term.get("type") == "uri"
+        if is_object:
+            if not text.startswith(ONTOLOGY_NS):
+                continue
+            text = text[len(ONTOLOGY_NS) :]
+        items.append(PropertyValue(name=name, value=text, is_object=is_object))
+    return items
+
+
+def _property_updates(local_name: str, values: dict[str, str]) -> str:
+    """DELETE then INSERT for each known ontology property in `values`."""
+    iri = individual_iri(local_name)
+    statements = []
+    for name, raw in values.items():
+        prop = get_property(name)
+        if prop is None:
+            raise ValueError(f"Unknown ontology property: {name}")
+        statements.append(f"DELETE WHERE {{ <{iri}> <{prop.iri}> ?o }}")
+        raw = (raw or "").strip()
+        if not raw:
+            continue
+        if prop.is_object:
+            obj = f"<{individual_iri(raw)}>"
+        elif prop.ranges and prop.ranges[0].endswith("#decimal"):
+            obj = f'"{Decimal(raw)}"^^<http://www.w3.org/2001/XMLSchema#decimal>'
+        else:
+            obj = f"{_literal(raw)}^^<http://www.w3.org/2001/XMLSchema#string>"
+        statements.append(f"INSERT DATA {{ <{iri}> <{prop.iri}> {obj} . }}")
+    return " ;\n".join(statements)

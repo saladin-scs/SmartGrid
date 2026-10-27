@@ -1,11 +1,39 @@
-<header class="topbar">
-  <a class="brand" href="{% url 'home' %}">ENERGIE</a>
-  <nav class="nav" aria-label="Modules">
-    <a href="{% url 'home' %}" {% if active == "home" %}aria-current="page"{% endif %}>Home</a>
+<aside class="sidebar" id="workspace-sidebar" aria-label="Navigation de l’espace">
+  <div class="sidebar-head">
+    <a class="brand" href="{% url 'overview' %}" aria-label="SmartGrid, vue d’ensemble">
+      <span class="brand-mark"><i data-lucide="zap"></i></span>
+      <span class="brand-word">smart<span class="brand-accent">grid</span></span>
+    </a>
+  </div>
+  <div class="workspace-badge"><span class="status-dot"></span><span>ENERGY KNOWLEDGE SYSTEM</span></div>
+  <nav class="sidebar-nav" aria-label="Navigation principale">
+    <p class="nav-heading">Intelligence</p>
+    <a class="nav-link {% if active == 'overview' %}is-active{% endif %}" href="{% url 'overview' %}" aria-label="Vue d’ensemble" title="Vue d’ensemble" {% if active == 'overview' %}aria-current="page"{% endif %}>
+      <i data-lucide="layout-dashboard"></i><span>Vue d’ensemble</span>
+    </a>
+    <a class="nav-link {% if active == 'graph' %}is-active{% endif %}" href="{% url 'graph' %}" aria-label="Graphe de connaissance" title="Graphe de connaissance" {% if active == 'graph' %}aria-current="page"{% endif %}>
+      <i data-lucide="network"></i><span>Graphe de connaissance</span>
+    </a>
+    <a class="nav-link {% if active == 'questions' %}is-active{% endif %}" href="{% url 'questions' %}" aria-label="Questions en français" title="Questions en français" {% if active == 'questions' %}aria-current="page"{% endif %}>
+      <i data-lucide="messages-square"></i><span>Questions en français</span>
+    </a>
+
+    <p class="nav-heading nav-heading-spaced">Domaine énergétique</p>
     {% for module in ontology_modules %}
-      <a href="{% url module.list_url_name %}" {% if active == module.key %}aria-current="page"{% endif %}>{{ module.root }}</a>
+      <a class="nav-link {% if active == module.key %}is-active{% endif %}" href="{% url module.list_url_name %}" aria-label="{{ module.root }}" title="{{ module.root }}" {% if active == module.key %}aria-current="page"{% endif %}>
+        <i data-lucide="{% if module.key == 'source_production' %}factory{% elif module.key == 'stockage' %}battery-charging{% elif module.key == 'consommateur' %}users{% elif module.key == 'contrat' %}file-text{% elif module.key == 'infrastructure' %}cable{% elif module.key == 'transport' %}truck{% elif module.key == 'zone' %}map-pin{% else %}user-round{% endif %}"></i>
+        <span>{{ module.root }}</span>
+      </a>
     {% endfor %}
-    <a href="{% url 'questions' %}" {% if active == "questions" %}aria-current="page"{% endif %}>Questions</a>
-    <a href="{% url 'admin:index' %}">Admin</a>
+
+    <p class="nav-heading nav-heading-spaced">Opérations</p>
+    <a class="nav-link {% if active == 'creation' %}is-active{% endif %}" href="{% url 'entity_creation' %}" aria-label="Création assistée" title="Création assistée" {% if active == 'creation' %}aria-current="page"{% endif %}>
+      <i data-lucide="sparkles"></i><span>Création assistée</span>
+    </a>
   </nav>
-</header>
+  <div class="sidebar-foot">
+    <div class="sidebar-foot-mark"><i data-lucide="database"></i></div>
+    <div class="sidebar-foot-copy"><strong>RDF · Fuseki</strong><span>Source de données</span></div>
+    <a class="sidebar-admin" href="{% url 'admin:index' %}" aria-label="Administration Django"><i data-lucide="settings"></i></a>
+  </div>
+</aside>

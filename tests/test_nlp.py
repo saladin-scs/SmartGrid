@@ -14,10 +14,11 @@ from web_sem.nlp.interpret import (
     GET_DETAILS,
     LIST_INDIVIDUALS,
     LIST_TYPES,
+    interpret,
 )
 from web_sem.nlp.normalize import normalize, normalized_question
 from web_sem.nlp.service import SAMPLE_QUESTIONS, Answer, answer_question
-from web_sem.nlp.sparql import QueryRejected, validate_select
+from web_sem.nlp.sparql import QueryRejected, build_query, validate_select
 from web_sem.ontology import class_iri, get_module, individual_iri, list_modules
 from web_sem.sparql import SparqlService
 
@@ -346,6 +347,21 @@ def test_injection_never_reaches_fuseki(question):
     assert answer.clarification
     assert answer.sparql == ""
     assert queries == []
+
+
+def test_parallel_validation_accepts_generated_queries():
+    from concurrent.futures import ThreadPoolExecutor
+
+    queries = [build_query(interpret(question)) for question, *_rest in EXAMPLES]
+    queries.append(build_query(interpret("Liste les contrats.")))
+    queries.append(build_query(interpret("Donne-moi les détails de CentraleTunis.")))
+
+    def check(_index: int) -> None:
+        for query in queries:
+            validate_select(query)
+
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        list(pool.map(check, range(8)))
 
 
 def test_validator_rejects_unsafe_queries():
