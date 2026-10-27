@@ -12,6 +12,7 @@ from web_sem.nlp.catalog import locate, subtree_names
 from web_sem.nlp.interpret import (
     COUNT_INDIVIDUALS,
     GET_DETAILS,
+    GET_RELATIONS,
     LIST_TYPES,
     MAX_QUESTION,
     Plan,
@@ -42,6 +43,8 @@ SAMPLE_QUESTIONS = (
     "Combien de contrats existe-t-il ?",
     "Liste les contrats de type AbonnementResidentiel.",
     "Quels types de contrats sont disponibles ?",
+    "Quels contrats sont liés au client abonné ClientAbonne_LacTunis ?",
+    "Quelles infrastructures sont situées dans la zone Ville_Sfax ?",
     "How many nuclear plants are there?",
 )
 
@@ -156,6 +159,10 @@ def _present(question: str, plan: Plan, query: str, explanation: str, payload: d
         rows = tuple(_individual_rows(bindings))
         if not rows:
             empty = say(plan.language, "empty_details", name=plan.individual_name)
+    elif plan.intent == GET_RELATIONS:
+        rows = tuple(_individual_rows(bindings))
+        if not rows:
+            empty = say(plan.language, "empty_related", name=plan.entity_name)
     else:  # LIST_INDIVIDUALS, FILTER_BY_CLASS: classes first, then individuals
         rows = tuple(_list_rows(plan, bindings)) + tuple(_individual_rows(bindings))
         if not rows:

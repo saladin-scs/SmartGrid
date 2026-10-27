@@ -22,6 +22,15 @@ class PersonneForm(IndividualForm):
             only_classes=("ClientAbonne",),
             help_text="Réservé aux clients abonnés.",
         ),
+        PropertyField(
+            "souscrit",
+            "Contrat souscrit",
+            kind="ref",
+            ref_root="Contrat",
+            ref_class="ContratAbonnement",
+            only_classes=("ClientAbonne",),
+            help_text="Réservé aux clients abonnés.",
+        ),
     )
 
 

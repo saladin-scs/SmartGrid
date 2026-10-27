@@ -11,7 +11,13 @@ import unicodedata
 from dataclasses import dataclass
 
 from web_sem.nlp.aliases import Alias, alias_index, cue_index
-from web_sem.nlp.catalog import all_class_names, is_ancestor, is_root, locate, subtree_names
+from web_sem.nlp.catalog import (
+    all_class_names,
+    is_ancestor,
+    is_root,
+    locate,
+    subtree_names,
+)
 from web_sem.nlp.normalize import _CLITICS, find_phrases, normalized_question
 from web_sem.ontology import (
     LOCAL_NAME_RE,
@@ -26,6 +32,7 @@ FILTER_BY_CLASS = "FILTER_BY_CLASS"
 GET_DETAILS = "GET_DETAILS"
 COUNT_INDIVIDUALS = "COUNT_INDIVIDUALS"
 LIST_TYPES = "LIST_TYPES"
+GET_RELATIONS = "GET_RELATIONS"
 
 MAX_QUESTION = 400
 _STRONG = ("count", "types", "details")
@@ -40,6 +47,17 @@ _DETAIL_RE = re.compile(
     r"(?:(?:de|du|des|d['’]|of|for|about|sur)\s+)?(\S.*?)\s*$"
 )
 _CLASS_FILTER_RE = re.compile(r"(?is)\b(?:de\s+type|type)\s+([A-Za-z][A-Za-z0-9_]*)\s*[.?!]*\s*$")
+_RELATION_ENTITY_RE = {
+    "consumer": re.compile(
+        r"(?is)\b(?:consommateurs?|clients?\s+abonn[eé]s?)\b"
+        r"\s+(?:(?:nomm[eé]e?|de|du|des|d['’]|le|la|l['’])\s+)?"
+        r"([A-Za-z][A-Za-z0-9_]*)\s*[.?!\"'»]*\s*$"
+    ),
+    "zone": re.compile(
+        r"(?is)\bzones?\b\s+(?:(?:nomm[eé]e?|de|du|des|d['’]|le|la|l['’])\s+)?"
+        r"([A-Za-z][A-Za-z0-9_]*)\s*[.?!\"'»]*\s*$"
+    ),
+}
 
 _TEXT: dict[str, dict[str, str]] = {
     "fr": {
@@ -60,6 +78,10 @@ _TEXT: dict[str, dict[str, str]] = {
         "bad_name": (
             "Le détail attend un nom local exact, par exemple CentraleTunis, "
             "ou un IRI de l'ontologie ENERGIE."
+        ),
+        "relation_name": (
+            "Précisez le nom local exact du consommateur ou de la zone, "
+            "par exemple « sana » ou « Ville_Sfax »."
         ),
         "which_class": "Précisez une classe existante dans ENERGIE.rdf.",
         "too_long": "La question est trop longue.",
@@ -85,6 +107,9 @@ _TEXT: dict[str, dict[str, str]] = {
         ),
         "details": "Types RDF assertés pour l'individu {name}.",
         "types": "Classes sous {name} déclarées dans ENERGIE.rdf. La requête SELECT retourne ces IRIs.",
+        "related_consumer": "Contrats souscrits par le consommateur {name}.",
+        "related_zone": "Infrastructures et sites situés dans la zone {name}.",
+        "empty_related": "Aucun résultat associé à {name} n'a été trouvé dans le jeu de données.",
     },
     "en": {
         "injection": "That question contains SPARQL syntax. Ask it in natural language.",
@@ -101,6 +126,7 @@ _TEXT: dict[str, dict[str, str]] = {
         ),
         "reserved": "{name} is an ontology term, not a supported individual.",
         "bad_name": "Details need an exact local name such as CentraleTunis, or an IRI in the ENERGIE ontology.",
+        "relation_name": "Name the consumer or zone by its exact local identifier, such as “sana” or “Ville_Sfax”.",
         "which_class": "Name a class that exists in ENERGIE.rdf.",
         "too_long": "The question is too long.",
         "store": "The RDF store could not run this query.",
@@ -122,6 +148,9 @@ _TEXT: dict[str, dict[str, str]] = {
         ),
         "details": "Asserted RDF types for the individual {name}.",
         "types": "Classes under {name} declared in ENERGIE.rdf. The SELECT query returns those IRIs.",
+        "related_consumer": "Contracts subscribed to by consumer {name}.",
+        "related_zone": "Infrastructure and sites located in zone {name}.",
+        "empty_related": "No related results were found for {name} in the dataset.",
     },
 }
 
@@ -132,6 +161,8 @@ class Plan:
     intent: str = ""
     class_name: str = ""
     individual_name: str = ""
+    relation: str = ""
+    entity_name: str = ""
     clarification: str = ""
 
 
@@ -157,6 +188,9 @@ def interpret(question: str) -> Plan:
         hits = _fallback_classes(normalized)
     cues = _cues(normalized)
     language = _language(question, cues, hits)
+    relation_plan = _relation_plan(question, normalized, language)
+    if relation_plan is not None:
+        return relation_plan
     strong = [kind for kind in _STRONG if cues.get(kind)]
     if len(strong) > 1:
         return Plan(language, clarification=say(language, "mixed"))
@@ -201,6 +235,9 @@ def interpret(question: str) -> Plan:
 
 def describe(plan: Plan, *, limit: int) -> str:
     """Explain a plan in the language detected for the question."""
+    if plan.intent == GET_RELATIONS:
+        key = "related_consumer" if plan.relation == "consumer_contracts" else "related_zone"
+        return say(plan.language, key, name=plan.entity_name)
     if plan.intent == GET_DETAILS:
         return say(plan.language, "details", name=plan.individual_name)
     label = display_name(plan.class_name)
@@ -212,6 +249,33 @@ def describe(plan: Plan, *, limit: int) -> str:
         return say(plan.language, key, name=label, count=subclasses)
     key = "list_leaf" if subclasses == 0 else "list_tree"
     return say(plan.language, key, name=label, count=subclasses, limit=limit)
+
+
+def _relation_plan(question: str, normalized: str, language: str) -> Plan | None:
+    words = set(normalized.split())
+    if "contrat" in words and (
+        "consommateur" in words
+        or ("client" in words and any(word.startswith("abonn") for word in words))
+    ):
+        relation, marker, class_name = "consumer_contracts", "consumer", "ContratAbonnement"
+    elif "infrastructure" in words and "zone" in words:
+        relation, marker, class_name = "zone_infrastructure", "zone", "Infrastructure"
+    else:
+        return None
+
+    match = _RELATION_ENTITY_RE[marker].search(question)
+    if match is None:
+        return Plan(language, clarification=say(language, "relation_name"))
+    entity_name = _individual_name(match.group(1))
+    if entity_name is None or entity_name in reserved_names():
+        return Plan(language, clarification=say(language, "relation_name"))
+    return Plan(
+        language,
+        GET_RELATIONS,
+        class_name=class_name,
+        relation=relation,
+        entity_name=entity_name,
+    )
 
 
 def _details(question: str, language: str) -> Plan:

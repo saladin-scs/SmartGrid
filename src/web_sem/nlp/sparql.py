@@ -20,11 +20,12 @@ from web_sem.nlp.interpret import (
     COUNT_INDIVIDUALS,
     FILTER_BY_CLASS,
     GET_DETAILS,
+    GET_RELATIONS,
     LIST_INDIVIDUALS,
     LIST_TYPES,
     Plan,
 )
-from web_sem.ontology import ONTOLOGY_NS, class_iri, individual_iri
+from web_sem.ontology import ONTOLOGY_NS, class_iri, get_property, individual_iri
 from web_sem.sparql.service import _top_level_forms
 
 RESULT_LIMIT = 100
@@ -68,6 +69,8 @@ _PARSE_LOCK = threading.Lock()
 
 
 def build_query(plan: Plan) -> str:
+    if plan.intent == GET_RELATIONS:
+        return _select_related(plan)
     if plan.intent in {LIST_INDIVIDUALS, FILTER_BY_CLASS}:
         return _select_individuals(subtree_names(plan.class_name))
     if plan.intent == COUNT_INDIVIDUALS:
@@ -160,6 +163,58 @@ def _select_details(local_name: str) -> str:
         f"  BIND({individual} AS ?individual)\n"
         "  ?individual a ?type .\n"
         f"  FILTER(STRSTARTS(STR(?individual), {namespace}))\n"
+        "}\n"
+        f"LIMIT {RESULT_LIMIT}\n"
+    )
+
+
+def _select_related(plan: Plan) -> str:
+    relations = {
+        "consumer_contracts": (
+            ("souscritContrat", "souscrit"),
+            True,
+            ("ContratAbonnement",),
+        ),
+        "zone_infrastructure": (
+            ("estSitueDans", "appartientAVille"),
+            False,
+            ("Infrastructure", "SiteInstallation"),
+        ),
+    }
+    configured = relations.get(plan.relation)
+    if configured is None:
+        raise QueryRejected("Unsupported ontology relation.")
+    property_names, outgoing, class_names = configured
+    property_terms = []
+    for property_name in property_names:
+        ontology_property = get_property(property_name)
+        if ontology_property is None or not ontology_property.is_object:
+            raise QueryRejected("The relation is not an ontology object property.")
+        rendered = URIRef(ontology_property.iri).n3()
+        if rendered != f"<{ontology_property.iri}>":
+            raise QueryRejected("Relation IRI could not be serialized safely.")
+        property_terms.append(rendered)
+
+    related_names = [
+        name
+        for root in class_names
+        for name in subtree_names(root)
+    ]
+    values = _class_values(related_names)
+    entity = _individual_term(plan.entity_name)
+    property_values = " ".join(property_terms)
+    relation_pattern = (
+        f"{entity} ?property ?individual ."
+        if outgoing
+        else f"?individual ?property {entity} ."
+    )
+    return (
+        "SELECT ?individual ?type\n"
+        "WHERE {\n"
+        f"  VALUES ?type {{ {values} }}\n"
+        f"  VALUES ?property {{ {property_values} }}\n"
+        f"  ?individual a ?type .\n"
+        f"  {relation_pattern}\n"
         "}\n"
         f"LIMIT {RESULT_LIMIT}\n"
     )
