@@ -24,8 +24,23 @@
     <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#alimente -->
 
     <owl:ObjectProperty rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#alimente">
-        <rdfs:domain rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Infrastructure"/>
-        <rdfs:range rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Consommateur"/>
+        <rdfs:domain>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Infrastructure"/>
+                    <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SourceProduction"/>
+                    <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Stockage"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:domain>
+        <rdfs:range>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Consommateur"/>
+                    <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Stockage"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:range>
     </owl:ObjectProperty>
 
 
@@ -94,7 +109,14 @@
     <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#estSitueDans -->
 
     <owl:ObjectProperty rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#estSitueDans">
-        <rdfs:domain rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Infrastructure"/>
+        <rdfs:domain>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Infrastructure"/>
+                    <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SourceProduction"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:domain>
         <rdfs:range rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Zone"/>
     </owl:ObjectProperty>
 

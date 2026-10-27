@@ -26,12 +26,13 @@ from web_sem.ontology import (
     display_name,
     get_property,
     individual_iri,
+    list_modules,
     list_properties,
     reserved_names,
 )
 
 if TYPE_CHECKING:
-    from web_sem.repository import IndividualRepository
+    from web_sem.repository import Individual, IndividualRepository
 
 _CREATE_ACTIONS = frozenset(
     {
@@ -69,6 +70,13 @@ _NAME_CUE = re.compile(
     r"situ[ée]e?\s+dans\b|localis[ée]e?\s+dans\b|se\s+trouve\s+dans\b|"
     r"région\b|region\b|puissance\b|sans\s+(?:la\s+)?(?:ville|lieu|zone)"
     r"(?:\s+ni\s+(?:la\s+)?(?:ville|lieu|zone))*\b)|[,;.!?]|$)",
+    re.IGNORECASE,
+)
+_RELATION_DESCRIPTION = re.compile(
+    r"^\s*(?:relier|lier|connecter|associer)\s+"
+    r"(?P<subject>[A-Za-z][A-Za-z0-9_]*)\s+(?:à|a)\s+"
+    r"(?P<object>[A-Za-z][A-Za-z0-9_]*)\s+(?:par|via)\s+"
+    r"(?P<property>[A-Za-z][A-Za-z0-9_]*)\s*[.!?]*\s*$",
     re.IGNORECASE,
 )
 _NO_LOCATION = re.compile(
@@ -136,6 +144,7 @@ class CreationPreview:
     module: OntologyModule
     properties: tuple[CreationProperty, ...]
     triples: tuple[tuple[URIRef, URIRef, Identifier], ...]
+    is_relationship: bool = False
 
     @property
     def rendered_triples(self) -> tuple[str, ...]:
@@ -149,11 +158,15 @@ def prepare_creation(
     description: str,
     repository: IndividualRepository,
 ) -> CreationPreview:
-    """Resolve a description against the ontology and build validated RDF terms."""
+    """Resolve an individual or relationship description into validated RDF terms."""
     if not isinstance(description, str) or not description.strip():
-        raise CreationError("Décrivez l’individu à créer.")
+        raise CreationError("Décrivez l’individu ou la relation à créer.")
     if len(description) > MAX_QUESTION:
         raise CreationError("La description dépasse la longueur autorisée.")
+
+    relation_match = _RELATION_DESCRIPTION.fullmatch(description)
+    if relation_match:
+        return _prepare_relationship(relation_match, repository)
 
     normalized = normalized_question(description)
     if not _CREATE_ACTIONS.intersection(normalized.split()):
@@ -239,11 +252,87 @@ def prepare_creation(
     )
 
 
+def _prepare_relationship(
+    match: re.Match[str],
+    repository: IndividualRepository,
+) -> CreationPreview:
+    subject_name = match.group("subject")
+    object_name = match.group("object")
+    property_name = match.group("property")
+    ontology_property = get_property(property_name)
+    if ontology_property is None or not ontology_property.is_object:
+        raise CreationError("La propriété indiquée doit être une propriété objet de l’ontologie.")
+
+    subject_module, subject = _find_existing_individual(subject_name, repository)
+    _validate_domain(ontology_property, subject.class_name)
+    object_iri = _object_value_iri(object_name, ontology_property.ranges, repository)
+    predicate = URIRef(ontology_property.iri)
+    subject_iri = URIRef(subject.iri)
+    relation = CreationProperty(
+        property_name,
+        display_name(property_name),
+        object_iri,
+        True,
+        object_iri,
+    )
+    return CreationPreview(
+        local_name=subject.local_name,
+        individual_iri=subject.iri,
+        class_name=subject.class_name,
+        class_label=subject.class_display,
+        module=subject_module,
+        properties=(relation,),
+        triples=((subject_iri, predicate, URIRef(object_iri)),),
+        is_relationship=True,
+    )
+
+
+def _find_existing_individual(
+    local_name: str,
+    repository: IndividualRepository,
+) -> tuple[OntologyModule, Individual]:
+    matches = [
+        (module, individual)
+        for module in list_modules()
+        if (individual := repository.get(module, local_name)) is not None
+    ]
+    if not matches:
+        raise CreationError(f"L’individu « {local_name} » n’existe pas dans le jeu de données.")
+    if len(matches) > 1:
+        raise CreationError(f"Plusieurs types correspondent à « {local_name} ».")
+    return matches[0]
+
+
 def persist_creation(
     preview: CreationPreview,
     repository: IndividualRepository,
 ) -> None:
     """Write only validated triples, serialized by RDFLib, through Fuseki."""
+    if preview.is_relationship:
+        if len(preview.triples) != 1 or preview.triples[0][0] != URIRef(preview.individual_iri):
+            raise CreationError("La prévisualisation de la relation n’est plus valide.")
+        _subject_module, subject = _find_existing_individual(preview.local_name, repository)
+        if subject.class_name != preview.class_name:
+            raise CreationError("La classe du sujet a changé depuis la prévisualisation.")
+        predicate = preview.triples[0][1]
+        ontology_property = next(
+            (item for item in list_properties() if item.iri == str(predicate) and item.is_object),
+            None,
+        )
+        if ontology_property is None:
+            raise CreationError("La propriété de la relation n’existe plus dans l’ontologie.")
+        _validate_domain(ontology_property, preview.class_name)
+        target_iri = _object_value_iri(
+            str(preview.triples[0][2]).removeprefix(ONTOLOGY_NS),
+            ontology_property.ranges,
+            repository,
+        )
+        if target_iri != str(preview.triples[0][2]):
+            raise CreationError("La prévisualisation de la relation n’est plus valide.")
+        update = "INSERT DATA { " + " ".join(preview.rendered_triples) + " }"
+        repository.service.update(update)
+        return
+
     if repository.exists(preview.local_name):
         raise CreationError(f"L’individu « {preview.local_name} » existe déjà.")
     if not preview.triples or preview.triples[0] != (
@@ -470,15 +559,19 @@ def _validate_domain(
     ontology_property: OntologyProperty,
     class_name: str,
 ) -> None:
+    matches_domain = False
     for domain_iri in ontology_property.domains:
         if not domain_iri.startswith(ONTOLOGY_NS):
             raise CreationError("Le domaine de cette propriété n’est pas une classe ENERGIE connue.")
         domain_name = domain_iri[len(ONTOLOGY_NS) :]
-        if class_name != domain_name and not is_ancestor(domain_name, class_name):
-            raise CreationError(
-                f"La propriété « {display_name(ontology_property.local_name)} » "
-                f"ne s’applique pas à la classe « {display_name(class_name)} »."
-            )
+        matches_domain = matches_domain or (
+            class_name == domain_name or is_ancestor(domain_name, class_name)
+        )
+    if not matches_domain:
+        raise CreationError(
+            f"La propriété « {display_name(ontology_property.local_name)} » "
+            f"ne s’applique pas à la classe « {display_name(class_name)} »."
+        )
 
 
 def _literal_value(value: str, ranges: tuple[str, ...]) -> Literal:
@@ -514,15 +607,22 @@ def _object_value_iri(
     ranges: tuple[str, ...],
     repository: IndividualRepository,
 ) -> str:
-    if len(ranges) != 1 or not ranges[0].startswith(ONTOLOGY_NS):
+    if not ranges or any(not item.startswith(ONTOLOGY_NS) for item in ranges):
         raise CreationError("La cible de cette propriété objet n’est pas une classe ENERGIE connue.")
-    range_name = ranges[0][len(ONTOLOGY_NS) :]
-    range_module = locate(range_name)
-    if range_module is None:
-        raise CreationError("La classe cible de cette propriété n’existe pas dans ENERGIE.rdf.")
+    range_classes: list[tuple[str, OntologyModule]] = []
+    for range_iri in ranges:
+        range_name = range_iri[len(ONTOLOGY_NS) :]
+        found = locate(range_name)
+        if found is None:
+            raise CreationError("La classe cible de cette propriété n’existe pas dans ENERGIE.rdf.")
+        range_classes.append((range_name, found[0]))
+
     target_name = _local_name(value)
     target_iri = individual_iri(target_name)
-    target = repository.get(range_module[0], target_name)
-    if target is None or (target.class_name != range_name and not is_ancestor(range_name, target.class_name)):
-        raise CreationError("La ressource indiquée n’existe pas avec le type attendu dans Fuseki.")
-    return target_iri
+    for range_name, module in range_classes:
+        target = repository.get(module, target_name)
+        if target is not None and (
+            target.class_name == range_name or is_ancestor(range_name, target.class_name)
+        ):
+            return target_iri
+    raise CreationError("La ressource indiquée n’existe pas avec le type attendu dans Fuseki.")

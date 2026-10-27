@@ -2,8 +2,14 @@
   <c-page-header
     title="Créer un individu RDF"
     eyebrow="Création en langage naturel"
-    summary="Décrivez l’individu en français. L’insertion n’a lieu qu’après vérification de l’aperçu et confirmation."
+    summary="Décrivez un individu ou une relation en français. L’insertion n’a lieu qu’après vérification de l’aperçu et confirmation."
   ></c-page-header>
+  <p class="help">
+    Pour relier des individus déjà présents, utilisez par exemple :
+    « Relier CentraleTunis à BatterieLith0001 par alimente »
+    ou « Relier CentraleTunis à Ville_Sfax par estSitueDans ».
+    Les noms doivent être leurs identifiants locaux exacts.
+  </p>
 
   <form class="panel question-form" method="post" action="{% url 'entity_creation' %}">
     {% csrf_token %}
@@ -22,9 +28,9 @@
     <section class="panel answer-panel" aria-label="Prévisualisation RDF">
       <h2>Aperçu — aucune donnée n’a encore été écrite</h2>
       <dl>
-        <dt>Individu</dt>
+        <dt>{% if preview.is_relationship %}Sujet existant{% else %}Individu à créer{% endif %}</dt>
         <dd>{{ preview.local_name }} <span class="help">{{ preview.individual_iri }}</span></dd>
-        <dt>Classe</dt>
+        <dt>Classe du sujet</dt>
         <dd>{{ preview.class_label }} <span class="help">{{ preview.class_name }}</span></dd>
       </dl>
       {% if preview.properties %}

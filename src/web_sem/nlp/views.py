@@ -120,6 +120,20 @@ def create_entity(request: HttpRequest) -> HttpResponse:
                                 )
                                 status = 503
                             else:
+                                if preview.is_relationship:
+                                    target_name = preview.triples[0][2]
+                                    messages.success(
+                                        request,
+                                        f"La relation « {preview.properties[0].label} » entre "
+                                        f"« {preview.local_name} » et "
+                                        f"« {str(target_name).rsplit('#', 1)[-1]} » a été ajoutée.",
+                                    )
+                                    return redirect(
+                                        reverse(
+                                            preview.module.detail_url_name,
+                                            kwargs={"local_name": preview.local_name},
+                                        )
+                                    )
                                 messages.success(
                                     request,
                                     f"L’individu « {preview.local_name} » a été inséré dans le jeu RDF energy.",

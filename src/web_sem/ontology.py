@@ -11,6 +11,7 @@ from functools import lru_cache
 
 from django.conf import settings
 from rdflib import Graph, URIRef
+from rdflib.collection import Collection
 from rdflib.namespace import OWL, RDF, RDFS
 
 ONTOLOGY_NS = "http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#"
@@ -213,8 +214,8 @@ def load_catalog() -> Catalog:
                 properties[name] = OntologyProperty(
                     local_name=name,
                     iri=str(subject),
-                    domains=tuple(str(term) for term in graph.objects(subject, RDFS.domain)),
-                    ranges=tuple(str(term) for term in graph.objects(subject, RDFS.range)),
+                    domains=_property_class_terms(graph, subject, RDFS.domain),
+                    ranges=_property_class_terms(graph, subject, RDFS.range),
                     is_object=property_type == OWL.ObjectProperty,
                 )
 
@@ -264,3 +265,14 @@ def _local_name(term: object) -> str | None:
     if not LOCAL_NAME_RE.fullmatch(name):
         return None
     return name
+
+
+def _property_class_terms(graph: Graph, subject: URIRef, predicate: URIRef) -> tuple[str, ...]:
+    terms: list[str] = []
+    for term in graph.objects(subject, predicate):
+        union = graph.value(term, OWL.unionOf)
+        if union is None:
+            terms.append(str(term))
+        else:
+            terms.extend(str(item) for item in Collection(graph, union))
+    return tuple(terms)
