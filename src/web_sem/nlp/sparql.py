@@ -21,8 +21,8 @@ from web_sem.nlp.interpret import (
     COUNT_INDIVIDUALS,
     FILTER_BY_CLASS,
     GET_DETAILS,
-    LIST_BY_ZONE,
     GET_RELATIONS,
+    LIST_BY_ZONE,
     LIST_INDIVIDUALS,
     LIST_TYPES,
     Plan,
@@ -99,6 +99,22 @@ def build_zone_lookup() -> str:
         f"  FILTER(STRSTARTS(STR(?zone), {namespace}))\n"
         f"  OPTIONAL {{ ?zone {_property_term('nomZone')} ?nom . }}\n"
         "}\n"
+        f"LIMIT {RESULT_LIMIT}\n"
+    )
+
+
+def build_individual_lookup() -> str:
+    """List bounded ontology individuals so a misspelled local name can be resolved."""
+    values = _class_values(all_class_names())
+    namespace = _namespace_literal()
+    return (
+        "SELECT ?individual\n"
+        "WHERE {\n"
+        f"  VALUES ?type {{ {values} }}\n"
+        "  ?individual a ?type .\n"
+        f"  FILTER(STRSTARTS(STR(?individual), {namespace}))\n"
+        "}\n"
+        "ORDER BY LCASE(STR(?individual))\n"
         f"LIMIT {RESULT_LIMIT}\n"
     )
 

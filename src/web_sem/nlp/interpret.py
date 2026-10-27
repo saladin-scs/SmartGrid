@@ -9,16 +9,14 @@ from __future__ import annotations
 import re
 import unicodedata
 from dataclasses import dataclass
+from difflib import SequenceMatcher
 
 from web_sem.nlp.aliases import Alias, alias_index, cue_index
 from web_sem.nlp.catalog import (
-    all_class_names,
     is_ancestor,
     is_root,
     locate,
     relation_properties,
-
-
     subtree_names,
 )
 from web_sem.nlp.normalize import _CLITICS, find_phrases, normalized_question
@@ -45,6 +43,8 @@ GET_RELATIONS = "GET_RELATIONS"
 MAX_QUESTION = 400
 _STRONG = ("count", "types", "details")
 _ARTICLES = frozenset({"le", "la", "les", "un", "une", "des", "du", "de", "d", "the", "a", "an", "of"})
+_FUZZY_CLASS_ROOTS = frozenset({"Infrastructure", "Transport"})
+_FUZZY_CLASS_THRESHOLD = 0.8
 _INJECTION_RE = re.compile(
     r"[{};\\]|/\*|\*/|--|"
     r"\b(?:INSERT|DELETE|LOAD|CLEAR|DROP|CONSTRUCT|DESCRIBE|SELECT|PREFIX|SERVICE|GRAPH)\b",
@@ -82,6 +82,7 @@ _TEXT: dict[str, dict[str, str]] = {
             "ou « Quels techniciens travaillent à Sfax ? »."
         ),
         "several": "Plusieurs classes correspondent : {names}. Précisez une seule classe.",
+        "individual_several": "Plusieurs individus ressemblent à « {name} » : {names}. Précisez le nom.",
         "mixed": "La question mélange plusieurs demandes. Choisissez une liste, un compte, un détail ou les types.",
         "class_name": (
             "{name} est une classe de l'ontologie, pas un individu. "
@@ -140,6 +141,7 @@ _TEXT: dict[str, dict[str, str]] = {
             'For example: "Which production sources exist?"'
         ),
         "several": "Several classes match: {names}. Name one class.",
+        "individual_several": "Several individuals are similar to “{name}”: {names}. Specify the name.",
         "mixed": "The question mixes several requests. Ask for a list, a count, a detail, or the types.",
         "class_name": (
             "{name} is an ontology class, not an individual. "
@@ -215,7 +217,28 @@ def interpret(question: str) -> Plan:
         return Plan(language, clarification=say(language, "empty"))
 
     hits = _classes(normalized)
-    if not hits:
+    fuzzy_hits = _fuzzy_module_classes(normalized)
+    if fuzzy_hits:
+        refined_hits: list[Alias] = []
+        for hit in hits:
+            found = locate(hit.local_name)
+            is_refined = False
+            for fuzzy in fuzzy_hits:
+                fuzzy_found = locate(fuzzy.local_name)
+                if (
+                    found is not None
+                    and fuzzy_found is not None
+                    and found[0].root == fuzzy_found[0].root
+                    and is_ancestor(hit.local_name, fuzzy.local_name)
+                ):
+                    is_refined = True
+                    break
+            if is_refined:
+                continue
+            refined_hits.append(hit)
+        hits = refined_hits
+        hits.extend(fuzzy_hits)
+    elif not hits:
         hits = _fallback_classes(normalized)
     cues = _cues(normalized)
     language = _language(question, cues, hits)
@@ -406,6 +429,91 @@ def _fallback_classes(normalized: str) -> list[Alias]:
                 hits.append(alias)
                 seen.add(alias.local_name)
     return hits
+
+
+def _fuzzy_module_classes(normalized: str) -> list[Alias]:
+    """Fuzzy-match misspelled class words only within Infrastructure and Transport."""
+    words = [
+        word for word in normalized.split()
+        if word and word not in _CLITICS and word not in _ARTICLES
+    ]
+    if not words:
+        return []
+
+    best_by_class: dict[str, tuple[tuple[int, float, float], Alias, bool]] = {}
+    found_fuzzy_word = False
+    for alias in alias_index():
+        located = locate(alias.local_name)
+        if located is None or located[0].root not in _FUZZY_CLASS_ROOTS:
+            continue
+        phrase_words = [
+            word for word in alias.phrase.split()
+            if word and word not in _CLITICS and word not in _ARTICLES
+        ]
+        if not phrase_words:
+            continue
+
+        pairs = sorted(
+            (
+                (
+                    1.0 if word == phrase_word else SequenceMatcher(None, word, phrase_word).ratio(),
+                    word_index,
+                    phrase_index,
+                    word == phrase_word,
+                )
+                for word_index, word in enumerate(words)
+                for phrase_index, phrase_word in enumerate(phrase_words)
+                if word == phrase_word
+                or min(len(word), len(phrase_word)) >= 5
+                and SequenceMatcher(None, word, phrase_word).ratio() >= _FUZZY_CLASS_THRESHOLD
+            ),
+            reverse=True,
+        )
+        matched_words: set[int] = set()
+        matched_phrase_words: set[int] = set()
+        matched_pairs: list[tuple[float, bool]] = []
+        for similarity, word_index, phrase_index, exact in pairs:
+            if word_index in matched_words or phrase_index in matched_phrase_words:
+                continue
+            matched_words.add(word_index)
+            matched_phrase_words.add(phrase_index)
+            matched_pairs.append((similarity, exact))
+
+        has_fuzzy_pair = any(not exact for _similarity, exact in matched_pairs)
+        if has_fuzzy_pair:
+            found_fuzzy_word = True
+        if not matched_pairs:
+            continue
+
+        score = (
+            len(matched_pairs),
+            len(matched_pairs) / len(phrase_words),
+            sum(similarity for similarity, _exact in matched_pairs),
+        )
+        current = best_by_class.get(alias.local_name)
+        if current is None or score > current[0]:
+            best_by_class[alias.local_name] = (score, alias, has_fuzzy_pair)
+
+    if not found_fuzzy_word:
+        return []
+    if not best_by_class:
+        return []
+
+    best_score = max(score for score, _alias, _has_fuzzy in best_by_class.values())
+    winners = {
+        local_name
+        for local_name, (score, _alias, has_fuzzy) in best_by_class.items()
+        if score == best_score and has_fuzzy
+    }
+    winners = {
+        name
+        for name in winners
+        if not any(is_ancestor(name, other) for other in winners if other != name)
+    }
+    return [
+        best_by_class[name][1]
+        for name in sorted(winners)
+    ]
 
 
 def _cues(normalized: str) -> dict[str, set[str]]:
