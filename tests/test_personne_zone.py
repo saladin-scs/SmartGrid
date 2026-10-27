@@ -205,3 +205,22 @@ def test_scenario_pages_report_unavailable_store(client, monkeypatch):
     assert client.get(reverse("scenarios")).status_code == 200
     assert client.get(reverse("scenario_run", args=["effectif_par_zone"])).status_code == 503
     assert client.get(reverse("scenario_run", args=["nope"])).status_code == 404
+
+
+def test_list_shows_name_zone_hierarchy_and_class_counts(client, repo):
+    zone = get_module("Zone")
+    person = get_module("Personne")
+    repo.create(zone, "ville_sfax", "Ville", {"nomZone": "Sfax"})
+    repo.create(person, "sami", "TechnicienLigne", {"nomPersonne": "Sami Ben Ali", "estAffecteA": "ville_sfax"})
+    repo.create(person, "amal", "Ingenieur", {"nomPersonne": "Amal"})
+
+    page = client.get(reverse("personne:list"))
+    html = page.content.decode()
+    assert "Sami Ben Ali" in html and "ville_sfax" in html
+    assert "Personne / Technicien / Technicien Maintenance / Technicien Ligne" in html
+    assert [(c["label"], c["count"]) for c in page.context["class_counts"]] == [
+        ("Ingenieur", 1),
+        ("Technicien Ligne", 1),
+    ]
+    zones = client.get(reverse("zone:list")).content.decode()
+    assert "Sfax" in zones

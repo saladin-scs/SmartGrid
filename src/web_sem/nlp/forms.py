@@ -13,8 +13,8 @@ class QuestionForm(forms.Form):
         max_length=MAX_QUESTION,
         widget=forms.Textarea(attrs={"rows": 4, "class": "control"}),
         help_text=(
-            "Interrogez en français les sources de production, les stockages, les consommateurs "
-            "ou les contrats. Votre texte n’est jamais exécuté comme du SPARQL."
+            "Interrogez en français les sources de production, les stockages, les consommateurs, "
+            "les contrats, les personnes ou les zones. Votre texte n’est jamais exécuté comme du SPARQL."
         ),
     )
 
