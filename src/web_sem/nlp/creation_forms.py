@@ -15,12 +15,12 @@ class EntityCreationForm(forms.Form):
             attrs={
                 "rows": 4,
                 "class": "control",
-                "placeholder": "Créer une centrale solaire appelée CentraleSud.",
+                "placeholder": "Ajoute une ville Sfax dans la région du Sahel.",
             }
         ),
         help_text=(
-            "Indiquez une classe de l’ontologie et un nom avec « appelé(e) » ou « nommé(e) ». "
-            "Les propriétés doivent être explicites, par exemple nomPersonne=Amal."
+            "Décrivez librement l’individu, sa classe et ses attributs. "
+            "Exemple : « Ajoute une ligne basse tension appelée LigneNord située dans la zone VilleSfax. »"
         ),
     )
     confirmed = forms.BooleanField(
