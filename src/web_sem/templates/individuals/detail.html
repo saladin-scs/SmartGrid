@@ -23,5 +23,47 @@
       </dd>
     </div>
   </dl>
+
+  {% if module.key == 'personne' or module.key == 'zone' %}
+    <h2 class="section-title">Propriétés</h2>
+    {% if individual.properties %}
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Propriété</th><th>Valeur</th></tr></thead>
+          <tbody>
+            {% for item in individual.properties %}
+              <tr>
+                <td data-label="Propriété"><code>{{ item.name }}</code></td>
+                <td data-label="Valeur">
+                  {{ item.value }}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="empty">Aucune propriété renseignée. Utilisez « Modifier » pour en ajouter.</p>
+    {% endif %}
+
+    <h2 class="section-title">Liens entrants</h2>
+    {% if individual.incoming %}
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Individu</th><th>Relation</th></tr></thead>
+          <tbody>
+            {% for item in individual.incoming %}
+              <tr>
+                <td data-label="Individu">{{ item.value }}</td>
+                <td data-label="Relation"><code>{{ item.name }}</code> → {{ individual.local_name }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="empty">Aucun individu ne pointe vers celui-ci.</p>
+    {% endif %}
+  {% endif %}
   <p><a class="text-link" href="{% url module.list_url_name %}">Retour à {{ module.root }}</a></p>
 </c-layout>

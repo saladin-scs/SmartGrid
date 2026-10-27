@@ -1,0 +1,42 @@
+<c-layout active="scenarios" :title="scenario.title">
+  <c-page-header :title="scenario.title" :eyebrow="scenario.actor" :summary="scenario.description"></c-page-header>
+
+  {% if scenario.param %}
+    <form class="filters" method="get">
+      <div class="field">
+        <label for="value">{{ scenario.param_label }}</label>
+        <select class="control" id="value" name="value">
+          <option value="">— Choisir —</option>
+          {% for name in choices %}
+            <option value="{{ name }}" {% if name == value %}selected{% endif %}>{{ name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button class="button" type="submit"><i data-lucide="play"></i> Exécuter</button>
+    </form>
+  {% endif %}
+
+  {% if error %}
+    <p class="empty">{{ error }}</p>
+  {% elif ready %}
+    {% if rows %}
+      <div class="table-wrap">
+        <table>
+          <thead><tr>{% for key, label in scenario.columns %}<th>{{ label }}</th>{% endfor %}</tr></thead>
+          <tbody>
+            {% for row in rows %}
+              <tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="empty">Aucun résultat pour ce scénario.</p>
+    {% endif %}
+    <details>
+      <summary>Requête SPARQL</summary>
+      <pre class="scenario-query">{{ query }}</pre>
+    </details>
+  {% endif %}
+  <p><a class="text-link" href="{% url 'scenarios' %}">Retour aux scénarios</a></p>
+</c-layout>

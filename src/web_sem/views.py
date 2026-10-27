@@ -147,7 +147,9 @@ def individual_create(request: HttpRequest, form_class: type[IndividualForm]) ->
     if request.method == "POST" and form.is_valid():
         name = form.cleaned_data["local_name"]
         try:
-            IndividualRepository().create(module, name, form.cleaned_data["rdf_type"])
+            IndividualRepository().create(
+                module, name, form.cleaned_data["rdf_type"], form.property_values()
+            )
         except SparqlServiceError:
             logger.exception("Could not create RDF individual")
             form.add_error(None, "The RDF store could not save this individual.")
@@ -182,13 +184,17 @@ def individual_edit(
         editing=True,
         initial={"rdf_type": individual.class_name},
     )
+    form.set_initial_properties(individual.property_map())
     if request.method == "POST" and form.is_valid():
         try:
-            IndividualRepository().update_class(
+            repository = IndividualRepository()
+            repository.update_class(
                 module,
                 individual.local_name,
                 form.cleaned_data["rdf_type"],
             )
+            if form.property_fields:
+                repository.set_properties(individual.local_name, form.property_values())
         except SparqlServiceError:
             logger.exception("Could not update RDF individual")
             form.add_error(None, "The RDF store could not save this individual.")
@@ -251,3 +257,46 @@ def _unavailable(request: HttpRequest, exc: Exception) -> HttpResponse:
         {"message": str(exc), "active": ""},
         status=503,
     )
+
+
+@require_GET
+def scenario_list(request: HttpRequest) -> HttpResponse:
+    from web_sem.scenarios import SCENARIOS
+
+    return render(request, "scenarios/list.html", {"scenarios": SCENARIOS, "active": "scenarios"})
+
+
+@require_GET
+def scenario_run(request: HttpRequest, key: str) -> HttpResponse:
+    from web_sem import scenarios
+
+    scenario = scenarios.BY_KEY.get(key)
+    if scenario is None:
+        raise Http404("Unknown scenario.")
+    value = request.GET.get("value", "").strip()
+    context = {
+        "scenario": scenario,
+        "active": "scenarios",
+        "value": value,
+        "choices": [],
+        "rows": [],
+        "query": "",
+        "error": "",
+        "ready": False,
+    }
+    status = 200
+    try:
+        if scenario.param:
+            context["choices"] = scenarios.param_choices(scenario)
+        if not scenario.param or value:
+            if scenario.param and value not in context["choices"]:
+                context["error"] = "Choisissez un individu de la liste."
+                status = 400
+            else:
+                context["query"], context["rows"] = scenarios.run(scenario, value)
+                context["ready"] = True
+    except (OntologyError, SparqlServiceError):
+        logger.exception("Scenario %s failed", key)
+        context["error"] = "Fuseki ou l’ontologie est indisponible."
+        status = 503
+    return render(request, "scenarios/run.html", context, status=status)

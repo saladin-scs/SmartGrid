@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import include, path
 
 from web_sem.nlp.views import create_entity, questions
-from web_sem.views import graph_data, graph_explorer, home, overview
+from web_sem.views import graph_data, graph_explorer, home, overview, scenario_list, scenario_run
 
 urlpatterns = [
     path('', home, name='home'),
@@ -27,6 +27,8 @@ urlpatterns = [
     path('graph/data/', graph_data, name='graph_data'),
     path('questions/', questions, name='questions'),
     path('creation/', create_entity, name='entity_creation'),
+    path('scenarios/', scenario_list, name='scenarios'),
+    path('scenarios/<slug:key>/', scenario_run, name='scenario_run'),
     path('personnes/', include('personne.urls')),
     path('sources/', include('source_production.urls')),
     path('stockages/', include('stockage.urls')),
