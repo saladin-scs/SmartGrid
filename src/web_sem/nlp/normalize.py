@@ -30,6 +30,16 @@ def _strip_accents(text: str) -> str:
     return "".join(c for c in decomposed if not unicodedata.combining(c))
 
 
+def normalize(text: str) -> str:
+    """Case-fold, strip accents, and turn punctuation into spaces."""
+    decomposed = unicodedata.normalize("NFKD", text)
+    without_marks = "".join(char for char in decomposed if not unicodedata.combining(char))
+    lowered = without_marks.casefold().replace("’", "'").replace("`", "'")
+    spaced = re.sub(r"['_-]+", " ", lowered)
+    cleaned = re.sub(r"[^a-z0-9 ]+", " ", spaced)
+    return " ".join(cleaned.split())
+
+
 def lemmas(text: str) -> list[str]:
     """Return lemmatized, lowercased tokens from ``text`` using spaCy."""
     if _nlp is None:
@@ -52,7 +62,9 @@ def normalized_question(text: str) -> str:
     words = []
     for lemma in lemmas(text):
         cleaned = re.sub(r"[^a-z0-9]+", " ", _strip_accents(lemma))
-        words.extend(cleaned.split())
+        for w in cleaned.split():
+            if w and w not in _CLITICS:
+                words.append(w)
     return " ".join(words)
 
 

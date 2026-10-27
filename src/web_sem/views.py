@@ -131,7 +131,7 @@ def individual_list(request: HttpRequest, search_form_class: type[IndividualSear
 
 
 # Modules whose list shows a name and a zone next to each individual.
-WITH_SUMMARY = frozenset({"personne", "zone"})
+WITH_SUMMARY = frozenset({"personne", "zone", "evenement", "capteur_dispositif"})
 
 
 def _class_counts(module, individuals) -> list[dict]:

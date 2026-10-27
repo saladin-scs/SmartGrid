@@ -41,18 +41,34 @@ class Individual:
 
     @property
     def label(self) -> str:
-        """Human name of a person or a zone, when one is stored."""
+        """Human name or label, when one is stored."""
         values = self.property_map()
-        return values.get("nomPersonne") or values.get("nomZone") or ""
+        return values.get("nomPersonne") or values.get("nomZone") or values.get("dateEvenement") or ""
 
     @property
     def zone(self) -> str:
-        """The zone a person works in / lives in, or the city of a site."""
+        """The linked zone, destination, or target object."""
         values = self.property_map()
-        return values.get("estAffecteA") or values.get("residentDans") or values.get("appartientAVille") or ""
+        return (
+            values.get("estAffecteA")
+            or values.get("residentDans")
+            or values.get("appartientAVille")
+            or values.get("declenche")
+            or values.get("concerne")
+            or ""
+        )
 
 
-SUMMARY_PROPERTIES = ("nomPersonne", "nomZone", "estAffecteA", "residentDans", "appartientAVille")
+SUMMARY_PROPERTIES = (
+    "nomPersonne",
+    "nomZone",
+    "estAffecteA",
+    "residentDans",
+    "appartientAVille",
+    "dateEvenement",
+    "declenche",
+    "concerne",
+)
 
 
 class IndividualRepository:
@@ -324,6 +340,8 @@ def _property_updates(local_name: str, values: dict[str, str]) -> str:
             obj = f"<{individual_iri(raw)}>"
         elif prop.ranges and prop.ranges[0].endswith("#decimal"):
             obj = f'"{Decimal(raw)}"^^<http://www.w3.org/2001/XMLSchema#decimal>'
+        elif prop.ranges and prop.ranges[0].endswith("#date"):
+            obj = f'"{raw}"^^<http://www.w3.org/2001/XMLSchema#date>'
         else:
             obj = f"{_literal(raw)}^^<http://www.w3.org/2001/XMLSchema#string>"
         statements.append(f"INSERT DATA {{ <{iri}> <{prop.iri}> {obj} . }}")

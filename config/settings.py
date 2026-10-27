@@ -54,6 +54,8 @@ INSTALLED_APPS = [
     'infrastructure',
     'transport',
     'zone',
+    'evenement',
+    'capteur_dispositif',
 ]
 
 MIDDLEWARE = [

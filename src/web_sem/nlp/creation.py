@@ -119,6 +119,25 @@ _NATURAL_PROPERTY_ALIASES = {
         "dans la ville",
         "dans une ville",
     ),
+    "dateEvenement": (
+        "date de l'événement",
+        "date de l'evenement",
+        "date de l événement",
+        "date événement",
+        "date evenement",
+        "date",
+    ),
+    "declenche": (
+        "déclenche l'événement",
+        "declenche l'evenement",
+        "déclenche",
+        "declenche",
+    ),
+    "concerne": (
+        "concerne l'infrastructure",
+        "concerne la structure",
+        "concerne",
+    ),
 }
 
 

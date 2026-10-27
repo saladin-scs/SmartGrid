@@ -47,7 +47,7 @@
   </section>
 
   <section class="landing-domain">
-    <div><p class="eyebrow">Modèle sémantique</p><h2>Une ontologie.<br><span>Huit domaines sémantiques.</span></h2></div>
+    <div><p class="eyebrow">Modèle sémantique</p><h2>Une ontologie.<br><span>{{ modules|length }} domaines sémantiques.</span></h2></div>
     <div class="domain-list">
       {% for module in modules %}
         <a href="{% url module.list_url_name %}"><span>{{ module.root }}</span><span class="domain-meta">{{ module.classes|length }} classes <i data-lucide="arrow-up-right"></i></span></a>
