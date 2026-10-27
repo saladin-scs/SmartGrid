@@ -13,6 +13,7 @@ from web_sem.nlp.interpret import (
     COUNT_BY_ZONE,
     COUNT_INDIVIDUALS,
     GET_DETAILS,
+    GET_RELATIONS,
     LIST_TYPES,
     MAX_QUESTION,
     ZONE_INTENTS,
@@ -57,6 +58,8 @@ SAMPLE_QUESTIONS = (
     "Quels sites appartiennent à Tozeur ?",
     "Liste les opérateurs.",
     "Liste les villes.",
+    "Quels contrats sont liés au client abonné ClientAbonne_LacTunis ?",
+    "Quelles infrastructures sont situées dans la zone Ville_Sfax ?",
     "How many nuclear plants are there?",
 )
 
@@ -204,6 +207,10 @@ def _present(question: str, plan: Plan, query: str, explanation: str, payload: d
             empty = say(
                 plan.language, "empty_by_zone", name=display_name(plan.class_name), zone=plan.zone_name
             )
+    elif plan.intent == GET_RELATIONS:
+        rows = tuple(_individual_rows(bindings))
+        if not rows:
+            empty = say(plan.language, "empty_related", name=plan.entity_name)
     else:  # LIST_INDIVIDUALS, FILTER_BY_CLASS: classes first, then individuals
         rows = tuple(_list_rows(plan, bindings)) + tuple(_individual_rows(bindings))
         if not rows:

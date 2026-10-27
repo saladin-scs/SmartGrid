@@ -35,7 +35,7 @@ SUBJECTS: dict[str, dict[str, list[str]]] = {
         "Poste": ["poste"],
         "PosteSource": ["poste source"],
         "PosteTransformation": ["poste de transformation"],
-        "LigneTransport": ["ligne de transport"],
+        "LigneTransport": ["ligne de transport", "ligne électrique", "ligne électrique de transport"],
         "Infrastructure": ["infrastructure"],
         # Personne
         "Personne": ["personnel", "employé"],
@@ -50,6 +50,17 @@ SUBJECTS: dict[str, dict[str, list[str]]] = {
         "SiteStockage": ["site de stockage"],
         "SiteSolaire": ["site solaire", "parc solaire"],
         "SiteEolien": ["site éolien", "parc éolien"],
+        # Infrastructure et Zone (équipe)
+        "LigneBasseTension": ["ligne basse tension"],
+        "LigneBasseTensionAerienne": ["ligne basse tension aérienne"],
+        "LigneBasseTensionSouterraine": ["ligne basse tension souterraine"],
+        "LigneHauteTension": ["ligne haute tension"],
+        "LigneHauteTensionAerienne": ["ligne haute tension aérienne"],
+        "LigneHauteTensionSouterraine": ["ligne haute tension souterraine"],
+        "LigneMoyenneTension": ["ligne moyenne tension"],
+        "LigneMoyenneTensionAerienne": ["ligne moyenne tension aérienne"],
+        "LigneMoyenneTensionSouterraine": ["ligne moyenne tension souterraine"],
+        "Ville": ["ville"],
     },
     "en": {
         "Consommateur": ["consumer"],
