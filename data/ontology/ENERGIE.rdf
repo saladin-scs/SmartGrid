@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<rdf:RDF xmlns="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9/"
+<rdf:RDF xmlns="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#"
      xml:base="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9/"
      xmlns:owl="http://www.w3.org/2002/07/owl#"
      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -90,6 +90,29 @@
         <rdfs:domain rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Infrastructure"/>
         <rdfs:range rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Zone"/>
     </owl:ObjectProperty>
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#estAffecteA -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#estAffecteA">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Personne"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Zone"/>
+    </owl:ObjectProperty>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#appartientAVille -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#appartientAVille">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteInstallation"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Ville"/>
+    </owl:ObjectProperty>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#residentDans -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#residentDans">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#ClientAbonne"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Ville"/>
+    </owl:ObjectProperty>
     
 
 
@@ -108,6 +131,45 @@
     <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#nomPersonne">
         <rdfs:domain rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Personne"/>
         <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#matricule -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#matricule">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Personne"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#emailPersonne -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#emailPersonne">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Personne"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#nomZone -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#nomZone">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Zone"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#region -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#region">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Zone"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#puissanceInstalleeMW -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#puissanceInstalleeMW">
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteProduction"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
     </owl:DatatypeProperty>
 
 
@@ -945,6 +1007,8 @@
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Ingenieur_Amal">
         <rdf:type rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Ingenieur"/>
         <nomPersonne rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Amal</nomPersonne>
+        <matricule rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ING-001</matricule>
+        <estAffecteA rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Ville_Sfax"/>
     </owl:NamedIndividual>
 
 
@@ -981,6 +1045,8 @@
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#ClientAbonne_LacTunis">
         <rdf:type rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#ClientAbonne"/>
         <souscrit rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#ContratAbonnement_1"/>
+        <nomPersonne rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Client Lac Tunis</nomPersonne>
+        <residentDans rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Ville_Sfax"/>
     </owl:NamedIndividual>
 
 
@@ -997,6 +1063,8 @@
 
     <owl:NamedIndividual rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Ville_Sfax">
         <rdf:type rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Ville"/>
+        <nomZone rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sfax</nomZone>
+        <region rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sud-Est</region>
     </owl:NamedIndividual>
     
 
@@ -1264,6 +1332,83 @@
             <rdf:Description rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#BobineSupraconductrice"/>
         </owl:members>
     </rdf:Description>
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Ville_Tozeur -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Ville_Tozeur">
+        <rdf:type rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Ville"/>
+        <nomZone rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Tozeur</nomZone>
+        <region rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sud-Ouest</region>
+    </owl:NamedIndividual>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteSolaire_Tozeur -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteSolaire_Tozeur">
+        <rdf:type rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteSolaire"/>
+        <nomZone rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Parc solaire de Tozeur</nomZone>
+        <puissanceInstalleeMW rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">50</puissanceInstalleeMW>
+        <appartientAVille rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Ville_Tozeur"/>
+    </owl:NamedIndividual>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteEolien_Bizerte -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteEolien_Bizerte">
+        <rdf:type rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteEolien"/>
+        <nomZone rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Parc eolien de Bizerte</nomZone>
+        <puissanceInstalleeMW rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">120</puissanceInstalleeMW>
+    </owl:NamedIndividual>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteStockage_Sfax -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteStockage_Sfax">
+        <rdf:type rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteStockage"/>
+        <nomZone rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Stockage de Sfax</nomZone>
+        <appartientAVille rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Ville_Sfax"/>
+    </owl:NamedIndividual>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Operateur_Karim -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Operateur_Karim">
+        <rdf:type rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Operateur"/>
+        <nomPersonne rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Karim</nomPersonne>
+        <matricule rdf:datatype="http://www.w3.org/2001/XMLSchema#string">OPR-001</matricule>
+        <estAffecteA rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteSolaire_Tozeur"/>
+    </owl:NamedIndividual>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#TechnicienLigne_Sami -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#TechnicienLigne_Sami">
+        <rdf:type rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#TechnicienLigne"/>
+        <nomPersonne rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sami</nomPersonne>
+        <matricule rdf:datatype="http://www.w3.org/2001/XMLSchema#string">TLG-001</matricule>
+        <estAffecteA rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Ville_Sfax"/>
+    </owl:NamedIndividual>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#TechnicienPoste_Rim -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#TechnicienPoste_Rim">
+        <rdf:type rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#TechnicienPoste"/>
+        <nomPersonne rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Rim</nomPersonne>
+        <matricule rdf:datatype="http://www.w3.org/2001/XMLSchema#string">TPT-001</matricule>
+        <estAffecteA rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#Ville_Tozeur"/>
+    </owl:NamedIndividual>
+
+
+    <!-- http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#TechnicienExploitation_Nour -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#TechnicienExploitation_Nour">
+        <rdf:type rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#TechnicienExploitation"/>
+        <nomPersonne rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Nour</nomPersonne>
+        <matricule rdf:datatype="http://www.w3.org/2001/XMLSchema#string">TEX-001</matricule>
+        <estAffecteA rdf:resource="http://www.semanticweb.org/sanal/ontologies/2026/9/untitled-ontology-9#SiteEolien_Bizerte"/>
+    </owl:NamedIndividual>
+
+
 </rdf:RDF>
 
 
