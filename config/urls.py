@@ -15,12 +15,28 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.contrib.auth.decorators import login_not_required
 from django.urls import include, path
 
+from web_sem.auth_views import SmartGridLoginView, SmartGridLogoutView, register
 from web_sem.nlp.views import create_entity, questions
-from web_sem.views import graph_data, graph_explorer, home, overview, scenario_list, scenario_run
+from web_sem.views import (
+    graph_data,
+    graph_explorer,
+    home,
+    overview,
+    scenario_list,
+    scenario_run,
+)
 
 urlpatterns = [
+    path(
+        'accounts/login/',
+        login_not_required(SmartGridLoginView.as_view()),
+        name='login',
+    ),
+    path('accounts/register/', register, name='register'),
+    path('accounts/logout/', SmartGridLogoutView.as_view(), name='logout'),
     path('', home, name='home'),
     path('workspace/', overview, name='overview'),
     path('graph/', graph_explorer, name='graph'),

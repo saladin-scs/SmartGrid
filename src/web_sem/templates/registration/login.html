@@ -1,0 +1,23 @@
+<c-layout active="auth" title="Connexion">
+  <section class="auth-card" aria-labelledby="auth-title">
+    <p class="eyebrow">Espace sécurisé</p>
+    <h1 id="auth-title">Connexion</h1>
+    <p class="auth-description">Connectez-vous pour accéder à l’espace SmartGrid.</p>
+
+    <form class="auth-form" method="post">
+      {% csrf_token %}
+      {% if form.non_field_errors %}{{ form.non_field_errors }}{% endif %}
+      {% for field in form %}
+        <div class="field{% if field.errors %} is-invalid{% endif %}">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}{{ field.errors }}{% endif %}
+        </div>
+      {% endfor %}
+      {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+      <button class="button button-primary button-large" type="submit">Se connecter</button>
+    </form>
+
+    <p class="auth-switch">Pas encore de compte ? <a href="{% url 'register' %}">Créer un compte</a></p>
+  </section>
+</c-layout>

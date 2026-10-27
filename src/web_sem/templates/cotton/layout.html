@@ -10,9 +10,27 @@
   <link rel="stylesheet" href="{% static 'web_sem/app.css' %}">
   <link rel="stylesheet" href="{% static 'web_sem/site.css' %}">
 </head>
-<body class="{% if active == 'public' %}public-body{% else %}app-body{% endif %}">
+<body class="{% if active == 'auth' %}auth-body{% elif active == 'public' %}public-body{% else %}app-body{% endif %}">
   <a class="skip-link" href="#main-content">Aller au contenu</a>
-  {% if active == "public" %}
+  {% if active == "auth" %}
+    <div class="auth-shell">
+      <a class="brand auth-brand" href="{% url 'login' %}" aria-label="SmartGrid, authentification">
+        <span class="brand-mark"><i data-lucide="zap"></i></span>
+        <span class="brand-word">smart<span class="brand-accent">grid</span></span>
+      </a>
+      <main id="main-content" class="auth-content">
+        {% if messages %}
+          <ul class="messages" aria-live="polite">
+            {% for message in messages %}
+              <li class="message message-{{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+        {{ slot }}
+      </main>
+      <p class="auth-caption">SMARTGRID · WEB SÉMANTIQUE</p>
+    </div>
+  {% elif active == "public" %}
     <div class="public-shell">
       <header class="public-header">
         <a class="brand" href="{% url 'home' %}" aria-label="SmartGrid, accueil">
@@ -41,7 +59,14 @@
             <span class="context-mark"><i data-lucide="activity"></i></span>
             <span>Energy intelligence <span class="context-divider">/</span> <strong>{% if title %}{{ title }}{% else %}Espace de travail{% endif %}</strong></span>
           </div>
-          <a class="topbar-admin" href="{% url 'admin:index' %}"><i data-lucide="settings"></i><span>Administration</span></a>
+          <div class="topbar-actions">
+            <span class="topbar-user">{{ request.user.get_username }}</span>
+            <form method="post" action="{% url 'logout' %}">
+              {% csrf_token %}
+              <button class="topbar-logout" type="submit">Déconnexion</button>
+            </form>
+            <a class="topbar-admin" href="{% url 'admin:index' %}"><i data-lucide="settings"></i><span>Administration</span></a>
+          </div>
         </header>
         <main id="main-content" class="workspace-content">
           {% if messages %}

@@ -928,6 +928,34 @@ code { overflow-wrap: anywhere; color: #a5cbb3; font: .9em var(--mono); }
 .scenario-actor { color: var(--mint); font: 500 .66rem var(--mono); text-transform: uppercase; letter-spacing: .08em; }
 .scenario-query { overflow-x: auto; margin: 1rem 0; padding: .9rem; border: 1px solid var(--line); border-radius: 9px; font: .72rem/1.5 var(--mono); white-space: pre; }
 
+.auth-body { display: grid; min-height: 100vh; background: radial-gradient(ellipse at 50% 20%, #10231a 0, var(--bg) 58%); }
+.auth-shell { display: grid; width: min(100% - 2rem, 460px); align-content: center; justify-items: center; gap: 1.5rem; margin: 0 auto; padding: 2rem 0; }
+.auth-brand { font-size: 1.25rem; }
+.auth-content { width: 100%; }
+.auth-card { border: 1px solid var(--line-strong); border-radius: 12px; padding: clamp(1.25rem, 5vw, 2rem); background: linear-gradient(145deg, #101e19, #0c1813); box-shadow: 0 24px 70px rgba(0, 0, 0, .28); }
+.auth-card > .eyebrow { margin: 0 0 .45rem; color: var(--mint); font: 600 .65rem var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+.auth-card h1 { margin: 0; color: var(--text); font-size: 1.6rem; letter-spacing: -.04em; }
+.auth-description { margin: .45rem 0 1.4rem; color: var(--muted); font-size: .78rem; }
+.auth-form { display: grid; gap: .9rem; }
+.auth-form .field { min-width: 0; }
+.auth-form .button { width: 100%; margin-top: .25rem; }
+.auth-switch { margin: 1.2rem 0 0; color: var(--muted); font-size: .72rem; text-align: center; }
+.auth-switch a { color: var(--mint); font-weight: 650; text-decoration: none; }
+.auth-switch a:hover { color: var(--mint-bright); text-decoration: underline; }
+.auth-caption { margin: 0; color: #64776c; font: .57rem var(--mono); letter-spacing: .1em; }
+.topbar-actions { display: flex; align-items: center; gap: .8rem; margin-left: auto; }
+.topbar-user { max-width: 12rem; overflow: hidden; color: #aab9b0; font-size: .68rem; text-overflow: ellipsis; white-space: nowrap; }
+.topbar-actions form { margin: 0; }
+.topbar-logout { border: 0; padding: .35rem .5rem; color: #aab9b0; background: transparent; font-size: .68rem; cursor: pointer; }
+.topbar-logout:hover { color: var(--mint); }
+.topbar-actions .topbar-admin { margin-left: 0; }
+
+@media (max-width: 650px) {
+  .topbar-actions { gap: .3rem; }
+  .topbar-user { display: none; }
+  .topbar-logout { padding-inline: .35rem; font-size: .62rem; }
+}
+
 .class-chips { display: flex; flex-wrap: wrap; gap: .5rem; margin: 0 0 1rem; }
 .chip { display: inline-flex; align-items: center; gap: .45rem; padding: .32rem .7rem; border: 1px solid var(--line); border-radius: 999px; background: #0d1915; color: var(--text); font-size: .76rem; text-decoration: none; }
 .chip strong { color: var(--mint); font: 600 .74rem var(--mono); }

@@ -1,0 +1,23 @@
+<c-layout active="auth" title="Créer un compte">
+  <section class="auth-card" aria-labelledby="auth-title">
+    <p class="eyebrow">Accès SmartGrid</p>
+    <h1 id="auth-title">Créer un compte</h1>
+    <p class="auth-description">Choisissez un nom d’utilisateur et un mot de passe sécurisé.</p>
+
+    <form class="auth-form" method="post">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      {% for field in form %}
+        <div class="field{% if field.errors %} is-invalid{% endif %}">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}<div class="help">{{ field.help_text }}</div>{% endif %}
+          {% if field.errors %}{{ field.errors }}{% endif %}
+        </div>
+      {% endfor %}
+      <button class="button button-primary button-large" type="submit">Créer mon compte</button>
+    </form>
+
+    <p class="auth-switch">Vous avez déjà un compte ? <a href="{% url 'login' %}">Se connecter</a></p>
+  </section>
+</c-layout>
