@@ -1,54 +1,54 @@
 # SmartGrid
 
-SmartGrid is an ontology-driven energy information platform. It combines a Django web application, the ENERGIE RDF ontology, and Apache Jena Fuseki to explore energy-system data through dashboards, a graph browser, semantic search, and natural-language questions.
+SmartGrid est une plateforme d'information énergétique fondée sur une ontologie. Elle associe une application web Django, l'ontologie RDF ENERGIE et Apache Jena Fuseki pour explorer les données du système énergétique à l'aide de tableaux de bord, d'un explorateur de graphe, d'une recherche sémantique et de questions en langage naturel.
 
-## What makes the AI different
+## Une IA différente
 
-SmartGrid's AI is **grounded, inspectable, and domain-specific**. It does not ask a generative language model to invent an answer: it translates a user's question into a constrained query over the ENERGIE knowledge graph, then presents the data returned by Fuseki.
+L'IA de SmartGrid est **ancrée dans les données, explicable et spécialisée dans son domaine**. Elle ne demande pas à un modèle de langage génératif d'inventer une réponse : elle traduit la question de l'utilisateur en une requête contrôlée sur le graphe de connaissances ENERGIE, puis présente les données renvoyées par Fuseki.
 
-The French-first NLP pipeline uses spaCy's `fr_core_news_sm` model for tokenization and lemmatization, with a lightweight fallback when the model is unavailable. Ontology class names and curated French and English aliases connect everyday phrasing to the concepts and relationships defined in the RDF schema.
+Le pipeline de TALN (traitement automatique du langage naturel), principalement conçu pour le français, utilise le modèle spaCy `fr_core_news_sm` pour la tokenisation et la lemmatisation. Un mécanisme de repli plus léger est disponible si le modèle n'est pas installé. Les noms de classes de l'ontologie et des alias français et anglais sélectionnés relient les formulations courantes aux concepts et relations définis dans le schéma RDF.
 
-### Natural-language question pipeline
+### Étapes du traitement des questions
 
-1. **Normalize** the question: collapse whitespace, remove accents and punctuation for matching, and lemmatize tokens.
-2. **Interpret** language cues and domain terms to identify an intent such as listing individuals, counting instances, listing class types, retrieving details, or querying by zone and relation.
-3. **Ground** class, property, zone, and individual references against the ontology catalog and, where needed, the Fuseki dataset. Ambiguous or unresolved questions can request clarification.
-4. **Build and validate** an ontology-templated SPARQL `SELECT`. The question text is not interpolated into the query; generated question-answering queries are read-only, ontology-scoped, and result-limited.
-5. **Execute and explain** the query through the shared Fuseki client, then format returned bindings as results with a plain-language explanation.
+1. **Normalisation** : uniformiser les espaces, retirer les accents et la ponctuation pour faciliter la recherche, puis lemmatiser les tokens.
+2. **Interprétation** : analyser les indices linguistiques et les termes du domaine afin d'identifier l'intention — par exemple, lister des individus, compter des instances, lister des types de classes, obtenir des détails ou interroger des données par zone et relation.
+3. **Ancrage dans l'ontologie** : faire correspondre les classes, propriétés, zones et individus avec le catalogue de l'ontologie et, si nécessaire, avec le jeu de données Fuseki. Une question ambiguë ou non résolue peut déclencher une demande de clarification.
+4. **Génération et validation** : construire une requête SPARQL `SELECT` à partir de modèles définis par l'ontologie et la valider. Le texte de la question n'est pas inséré dans la requête ; les requêtes générées pour le système de questions-réponses sont en lecture seule, limitées à l'ontologie et plafonnées en nombre de résultats.
+5. **Exécution et présentation** : exécuter la requête au moyen du client Fuseki partagé, puis mettre en forme les résultats et fournir une explication en langage naturel.
 
-Example questions include *« Combien de centrales nucléaires existe-t-il ? »*, *« Quels techniciens travaillent à Sfax ? »*, and *“How many nuclear plants are there?”*. This is semantic parsing and knowledge-graph question answering—not open-domain chat—and answers depend on the ontology and data currently available in Fuseki.
+Exemples de questions : *« Combien de centrales nucléaires existe-t-il ? »*, *« Quels techniciens travaillent à Sfax ? »* et *“How many nuclear plants are there?”*. Il s'agit d'analyse sémantique et de questions-réponses sur un graphe de connaissances, et non d'une conversation généraliste. Les réponses dépendent de l'ontologie et des données disponibles dans Fuseki.
 
-The separate natural-language creation workflow extracts ontology properties from a description and shows an RDF preview. It writes only after the user reviews and explicitly confirms the preview.
+Le processus distinct de création en langage naturel extrait les propriétés de l'ontologie à partir d'une description et affiche un aperçu RDF. L'écriture n'a lieu qu'après examen et confirmation explicite de cet aperçu par l'utilisateur.
 
-## Features
+## Fonctionnalités
 
-- Django workspace for ENERGIE ontology classes and RDF individuals.
-- Fuseki-backed overview, class distribution, and bounded, read-only RDF graph explorer.
-- French-first, bilingual-cue natural-language question answering over the ontology.
-- Preview-and-confirm flow for natural-language RDF individual creation.
-- Server-rendered Django pages with Tailwind CSS, Lucide icons, Chart.js, and Cytoscape.js.
-- Django administration styled with Django Unfold.
+- Espace de travail Django pour les classes de l'ontologie ENERGIE et les individus RDF.
+- Vue d'ensemble et répartition des classes alimentées par Fuseki, ainsi qu'un explorateur de graphe RDF en lecture seule avec limites de résultats.
+- Questions-réponses en langage naturel sur l'ontologie, principalement en français, avec prise en charge d'indices bilingues.
+- Création d'individus RDF en langage naturel avec aperçu et confirmation.
+- Pages Django générées côté serveur avec Tailwind CSS, icônes Lucide, Chart.js et Cytoscape.js.
+- Interface d'administration Django personnalisée avec Django Unfold.
 
-## Technology
+## Technologies
 
-| Area | Technologies |
+| Domaine | Technologies |
 | --- | --- |
-| Web application | Python 3.13+, Django 5.2, Django Cotton |
-| NLP | spaCy, `fr_core_news_sm`, lemmatization, ontology aliases and intent classification |
-| Semantic data | RDF, ENERGIE ontology, Apache Jena Fuseki, SPARQL, RDFLib |
-| Frontend | Tailwind CSS, JavaScript, esbuild, Lucide, Chart.js, Cytoscape.js |
+| Application web | Python 3.13+, Django 5.2, Django Cotton |
+| TALN | spaCy, `fr_core_news_sm`, lemmatisation, alias d'ontologie et classification d'intentions |
+| Données sémantiques | RDF, ontologie ENERGIE, Apache Jena Fuseki, SPARQL, RDFLib |
+| Interface | Tailwind CSS, JavaScript, esbuild, Lucide, Chart.js, Cytoscape.js |
 
-## Getting started
+## Prise en main
 
-### Prerequisites
+### Prérequis
 
-- Python 3.13 or newer and [uv](https://docs.astral.sh/uv/)
-- Node.js and npm
-- Apache Jena Fuseki, either installed separately or run with Docker Compose
+- Python 3.13 ou version ultérieure et [uv](https://docs.astral.sh/uv/)
+- Node.js et npm
+- Apache Jena Fuseki, installé séparément ou lancé avec Docker Compose
 
-### Install and run
+### Installation et lancement
 
-From the repository root, install the locked Python and frontend dependencies and build the static assets:
+Depuis la racine du dépôt, installez les dépendances Python et frontend verrouillées, puis générez les fichiers statiques :
 
 ```powershell
 uv sync
@@ -56,62 +56,62 @@ npm ci
 npm run build
 ```
 
-Configure the environment variables below in your shell or deployment environment. For local Django development, `DJANGO_DEBUG=true` enables the development-only fallback secret key; production must set a private `DJANGO_SECRET_KEY` and keep `DJANGO_DEBUG=false`.
+Configurez les variables d'environnement décrites ci-dessous dans votre terminal ou votre environnement de déploiement. Pour le développement local avec Django, `DJANGO_DEBUG=true` active la clé secrète de repli réservée au développement. En production, définissez une valeur privée pour `DJANGO_SECRET_KEY` et laissez `DJANGO_DEBUG=false`.
 
-To start the bundled Fuseki service, set `FUSEKI_ADMIN_PASSWORD` in the environment first; `docker-compose.yml` requires it and persists Fuseki data in a Docker volume:
+Pour démarrer le service Fuseki inclus, définissez d'abord `FUSEKI_ADMIN_PASSWORD` dans l'environnement. Le fichier `docker-compose.yml` exige cette variable et conserve les données Fuseki dans un volume Docker :
 
 ```powershell
-$env:FUSEKI_ADMIN_PASSWORD = "replace-with-a-local-password"
+$env:FUSEKI_ADMIN_PASSWORD = "remplacer-par-un-mot-de-passe-local"
 docker compose up -d
 ```
 
-Load the ENERGIE ontology and any application RDF data into the configured Fuseki dataset. Then start Django:
+Chargez l'ontologie ENERGIE et les données RDF de l'application dans le jeu de données Fuseki configuré. Démarrez ensuite Django :
 
 ```powershell
 $env:DJANGO_DEBUG = "true"
 uv run python manage.py runserver
 ```
 
-Open `http://127.0.0.1:8000/`. Do not use the example password in a real deployment; use a secret manager or another private environment-variable mechanism instead.
+Ouvrez `http://127.0.0.1:8000/`. N'utilisez pas le mot de passe d'exemple dans un déploiement réel : privilégiez un gestionnaire de secrets ou un autre mécanisme privé de gestion des variables d'environnement.
 
 ## Configuration
 
-The repository's `.env` file is intentionally not included. Local `.env` files are ignored by Git; configure values in your shell or deployment environment instead.
+Le fichier `.env` du dépôt n'est volontairement pas fourni. Les fichiers `.env` locaux sont ignorés par Git ; configurez plutôt les valeurs dans votre terminal ou votre environnement de déploiement.
 
-| Variable | Purpose | Default |
+| Variable | Rôle | Valeur par défaut |
 | --- | --- | --- |
-| `DJANGO_DEBUG` | Enables Django development mode | `false` |
-| `DJANGO_SECRET_KEY` | Django signing key; required when debug is disabled | Empty |
-| `DJANGO_ALLOWED_HOSTS` | Comma-separated allowed host names | `localhost` |
-| `FUSEKI_URL` | Fuseki server base URL | `http://127.0.0.1:3030` |
-| `FUSEKI_DATASET` | Fuseki dataset name | `energy` |
-| `FUSEKI_QUERY_URL` | Explicit SPARQL query endpoint; overrides the derived endpoint | Derived from `FUSEKI_URL` and `FUSEKI_DATASET` |
-| `FUSEKI_UPDATE_URL` | Explicit SPARQL update endpoint; overrides the derived endpoint | Derived from `FUSEKI_URL` and `FUSEKI_DATASET` |
-| `SPARQL_ENDPOINT` | Legacy query endpoint fallback | Empty |
-| `FUSEKI_ADMIN_USER` / `FUSEKI_ADMIN_PASSWORD` | Optional Fuseki HTTP Basic credentials; the password is required by the bundled Compose service | Empty |
-| `USE_MOCK_RDF` | Enables mock RDF data for supported read-only views | `false` |
+| `DJANGO_DEBUG` | Active le mode de développement Django | `false` |
+| `DJANGO_SECRET_KEY` | Clé de signature Django ; obligatoire si le mode debug est désactivé | Vide |
+| `DJANGO_ALLOWED_HOSTS` | Noms d'hôtes autorisés, séparés par des virgules | `localhost` |
+| `FUSEKI_URL` | URL de base du serveur Fuseki | `http://127.0.0.1:3030` |
+| `FUSEKI_DATASET` | Nom du jeu de données Fuseki | `energy` |
+| `FUSEKI_QUERY_URL` | Point de terminaison SPARQL de requête explicite ; remplace l'URL calculée | Calculé à partir de `FUSEKI_URL` et `FUSEKI_DATASET` |
+| `FUSEKI_UPDATE_URL` | Point de terminaison SPARQL de mise à jour explicite ; remplace l'URL calculée | Calculé à partir de `FUSEKI_URL` et `FUSEKI_DATASET` |
+| `SPARQL_ENDPOINT` | Ancienne variable de repli pour le point de terminaison de requête | Vide |
+| `FUSEKI_ADMIN_USER` / `FUSEKI_ADMIN_PASSWORD` | Identifiants HTTP Basic facultatifs pour Fuseki ; le mot de passe est requis par le service Compose inclus | Vides |
+| `USE_MOCK_RDF` | Active les données RDF simulées pour les vues en lecture seule compatibles | `false` |
 
-The query endpoint precedence is `FUSEKI_QUERY_URL`, then `SPARQL_ENDPOINT`, then `FUSEKI_URL` plus `FUSEKI_DATASET`. The update endpoint defaults to `FUSEKI_URL` plus `FUSEKI_DATASET`.
+Pour les requêtes, l'ordre de priorité est `FUSEKI_QUERY_URL`, puis `SPARQL_ENDPOINT`, puis `FUSEKI_URL` associé à `FUSEKI_DATASET`. Par défaut, le point de terminaison de mise à jour est construit à partir de `FUSEKI_URL` et `FUSEKI_DATASET`.
 
-## Main routes
+## Routes principales
 
-- `/` — public landing page
-- `/workspace/` — Fuseki-backed overview and class distribution
-- `/graph/` — bounded RDF graph explorer
-- `/graph/data/` — graph JSON endpoint, limited to 180 RDF results
-- `/questions/` — natural-language question answering
-- `/creation/` — RDF creation preview and confirmation
-- `/admin/` — Django administration
+- `/` — page d'accueil publique
+- `/workspace/` — vue d'ensemble et répartition des classes depuis Fuseki
+- `/graph/` — explorateur de graphe RDF avec résultats limités
+- `/graph/data/` — point de terminaison JSON du graphe, limité à 180 résultats RDF
+- `/questions/` — questions-réponses en langage naturel
+- `/creation/` — aperçu et confirmation de création RDF
+- `/admin/` — administration Django
 
-Question-answering results are separately capped at 100. The graph endpoint and NLP query limits are safeguards for their respective features.
+Les résultats du système de questions-réponses sont plafonnés séparément à 100. Les limites de l'API du graphe et des requêtes TALN protègent chacune leur fonctionnalité.
 
-## Frontend assets
+## Ressources frontend
 
-After changing templates, styles, or JavaScript, rebuild the local static assets:
+Après toute modification des templates, des styles ou du JavaScript, régénérez les fichiers statiques :
 
 ```powershell
 npm ci
 npm run build
 ```
 
-Tailwind CSS scans the Django templates. The build bundles Lucide icons and lazy-loads Chart.js on the overview and Cytoscape.js on the graph explorer. Generated files are served from `src/web_sem/static/web_sem/`.
+Tailwind CSS analyse les templates Django. La compilation regroupe les icônes Lucide et charge Chart.js à la demande dans la vue d'ensemble, ainsi que Cytoscape.js dans l'explorateur de graphe. Les fichiers générés sont servis depuis `src/web_sem/static/web_sem/`.
