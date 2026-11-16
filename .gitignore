@@ -9,3 +9,8 @@ wheels/
 # Virtual environments
 .venv
 node_modules/
+
+# Local environment variables and credentials
+.env
+.env.*
+!.env.example
